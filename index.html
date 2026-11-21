@@ -16,21 +16,26 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans select-none">
 
   <!-- TOP HEADER -->
-  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center space-x-3">
       <div class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400 border border-emerald-500/30">
         <i data-lucide="activity" class="w-6 h-6"></i>
       </div>
       <div>
-        <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
-          Aesthetic Sales Co-Pilot <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v1.1 Live</span>
+        <h1 class="font-bold text-base md:text-lg leading-tight text-white flex items-center gap-2">
+          Aesthetic Sales Co-Pilot <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v1.3 Auto-Sync</span>
         </h1>
-        <p class="text-xs text-slate-400" id="headerProductLabel">Cargando producto...</p>
+        <!-- SELECTOR RÁPIDO DE PRODUCTO EN VIVO -->
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span class="text-[11px] text-slate-400">Insumo Activo:</span>
+          <select id="quickProductSelect" onchange="switchActiveProduct(this.value)" class="bg-slate-950 border border-slate-700 rounded-md text-xs text-emerald-400 font-semibold px-2 py-0.5 outline-none max-w-[240px] truncate cursor-pointer hover:border-emerald-500">
+          </select>
+        </div>
       </div>
     </div>
 
     <!-- QUICK ROI STRIP -->
-    <div class="flex items-center gap-4 bg-slate-950/80 px-4 py-1.5 rounded-xl border border-slate-800 text-xs">
+    <div class="flex items-center gap-3 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
       <div>
         <span class="text-slate-400">Insumo:</span> 
         <span id="statCosto" class="font-bold text-slate-200">$0</span>
@@ -43,14 +48,14 @@
       <div class="w-px h-4 bg-slate-800"></div>
       <div class="text-emerald-400 font-bold flex items-center gap-1">
         <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
-        <span id="statMargen">+0% ($0 limpios/paciente)</span>
+        <span id="statMargen">+0% ($0 limpios)</span>
       </div>
     </div>
 
     <!-- CONTROLS & CONFIG -->
     <div class="flex items-center gap-2">
       <button onclick="openProductModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
-        <i data-lucide="package" class="w-4 h-4 text-emerald-400"></i> Mi Producto
+        <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i> Mi Catálogo (.MD)
       </button>
       <button onclick="openKnowledgeModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
         <i data-lucide="brain-circuit" class="w-4 h-4 text-cyan-400"></i> Entrenar / Métodos
@@ -195,69 +200,89 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIGURAR PRODUCTO (CON SOPORTE PARA SUBIR MARKDOWN .MD) -->
+  <!-- MODAL: MI CATÁLOGO (SUBIDA DE MARKDOWN RESILIENTE) -->
   <div id="modalProduct" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-5 shadow-2xl overflow-y-auto max-h-[90vh]">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 shadow-2xl overflow-y-auto max-h-[92vh]">
       <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-base text-white flex items-center gap-2">
-          <i data-lucide="package" class="w-5 h-5 text-emerald-400"></i> Ficha del Insumo Médico / Estético
-        </h3>
+        <div>
+          <h3 class="font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-emerald-400"></i> Catálogo de Insumos Médicos
+          </h3>
+          <p class="text-[11px] text-slate-400">Sube archivos Markdown (.md) y la app adaptará todos los guiones al instante</p>
+        </div>
         <button onclick="closeModal('modalProduct')" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- SECCIÓN: SUBIDA DE ARCHIVO MARKDOWN (.MD) -->
-      <div class="mb-4 bg-slate-950 border border-dashed border-emerald-500/40 rounded-xl p-3 text-center">
-        <input type="file" id="inpProdMdFile" accept=".md,.markdown,.txt" onchange="handleProductMarkdownUpload(event)" class="hidden">
-        <label for="inpProdMdFile" class="cursor-pointer flex flex-col items-center justify-center gap-1.5 py-1">
-          <div class="bg-emerald-500/20 p-2 rounded-lg text-emerald-400">
-            <i data-lucide="file-text" class="w-5 h-5"></i>
+      <!-- SECCIÓN: SUBIDA EN LOTE DE MÚLTIPLES ARCHIVOS (.MD / .TXT) -->
+      <div class="mb-4 bg-slate-950 border border-dashed border-emerald-500/50 hover:border-emerald-400 rounded-xl p-4 text-center transition">
+        <input type="file" id="inpProdMdFile" accept=".md,.markdown,.txt" multiple onchange="handleMultipleMarkdownUpload(event)" class="hidden">
+        <label for="inpProdMdFile" class="cursor-pointer flex flex-col items-center justify-center gap-2">
+          <div class="bg-emerald-500/20 p-2.5 rounded-xl text-emerald-400 border border-emerald-500/30">
+            <i data-lucide="upload-cloud" class="w-6 h-6"></i>
           </div>
-          <span class="text-xs font-semibold text-emerald-300">Subir Ficha Técnica en Markdown (.md / .txt)</span>
-          <span class="text-[10px] text-slate-400">Rellena automáticamente los datos y guarda la documentación técnica</span>
+          <div>
+            <span class="text-xs font-bold text-emerald-300 block">Subir Ficha Técnica (.md / .txt)</span>
+            <span class="text-[11px] text-slate-400">Soporta negritas, listas y símbolos. Puedes subir uno o varios archivos</span>
+          </div>
         </label>
-        <div id="mdStatusBadge" class="hidden mt-2 text-[11px] bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-slate-300 flex items-center justify-between">
-          <span id="mdStatusText" class="truncate font-mono">Ficha cargada</span>
-          <button type="button" onclick="clearMarkdownData()" class="text-rose-400 hover:text-rose-300 ml-2">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
       </div>
 
-      <form id="productForm" onsubmit="saveProduct(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Nombre del Insumo / Producto:</label>
-          <input type="text" id="inpProdName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Dolor Frecuente con la Competencia (¿De qué se queja el doctor?):</label>
-          <input type="text" id="inpProdPain" required placeholder="ej: Nódulos por mala reticulación, viales que se demoran 5 días en llegar" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Alivio / Diferencial Clave de tu Insumo:</label>
-          <input type="text" id="inpProdRelief" required placeholder="ej: Pureza BDDE indetectable, despacho en 24h garantizado y registro sanitario" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 pt-1">
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Costo al Doctor (USD):</label>
-            <input type="number" id="inpProdCost" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Cobro Sugerido al Paciente (USD):</label>
-            <input type="number" id="inpProdPrice" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-          </div>
-        </div>
-
-        <div class="pt-3 flex gap-2">
-          <button type="submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition">
-            Guardar y Adaptar Todos los Guiones
+      <!-- LISTA DE PRODUCTOS CARGADOS EN EL CATÁLOGO -->
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="folder" class="w-4 h-4 text-amber-400"></i> Insumos en Catálogo (<span id="catCount">0</span>)
+          </span>
+          <button onclick="createNewBlankProduct()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center gap-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo Insumo Manual
           </button>
         </div>
-      </form>
+        <div id="catalogList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- EDICIÓN MANUAL DEL INSUMO ACTIVO SELECCIONADO -->
+      <div class="border-t border-slate-800 pt-3">
+        <h4 class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5 text-cyan-400"></i> Datos Extraídos del Insumo Activo:
+        </h4>
+
+        <form id="productForm" onsubmit="saveProduct(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Nombre del Insumo / Referencia:</label>
+            <input type="text" id="inpProdName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Dolor Frecuente con la Competencia (¿De qué se queja el doctor?):</label>
+            <input type="text" id="inpProdPain" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Alivio / Diferencial Clave que Resuelve tu Insumo:</label>
+            <input type="text" id="inpProdRelief" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Costo al Doctor (USD):</label>
+              <input type="number" id="inpProdCost" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Cobro Sugerido al Paciente (USD):</label>
+              <input type="number" id="inpProdPrice" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+            </div>
+          </div>
+
+          <div class="pt-3 flex gap-2">
+            <button type="submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition">
+              Guardar y Recalcular Guiones
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 
@@ -284,7 +309,7 @@
         </div>
         <div>
           <label class="block text-slate-300 font-semibold mb-1">Tu Respuesta de Alivio (Qué responder):</label>
-          <textarea id="inpObjResponse" rows="3" placeholder="Respuesta que desactiva la objeción mostrando el costo o beneficio..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none"></textarea>
+          <textarea id="inpObjResponse" rows="3" placeholder="Respuesta que desactiva la objeción..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none"></textarea>
         </div>
         <button type="submit" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition">
           Guardar en la Bóveda Táctil
@@ -308,7 +333,7 @@
       <div class="space-y-4 text-xs">
         <div>
           <label class="block text-slate-300 font-semibold mb-1">Crear Guion Personalizado pegando Notas o Metodología:</label>
-          <textarea id="inpCustomMethodText" rows="4" placeholder="Pega aquí apuntes de un libro, un guion de un colega o principios clínicos para adaptar los guiones..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:border-cyan-400 outline-none"></textarea>
+          <textarea id="inpCustomMethodText" rows="4" placeholder="Pega aquí apuntes o principios para adaptar los guiones..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:border-cyan-400 outline-none"></textarea>
           <button onclick="applyCustomNotes()" class="mt-2 w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5">
             <i data-lucide="sparkles" class="w-4 h-4"></i> Incorporar Principios a los Guiones
           </button>
@@ -330,15 +355,26 @@
   <!-- JAVASCRIPT ENGINE -->
   <script>
     // --- ESTADO INICIAL / DEFAULT DATA ---
-    const DEFAULT_PRODUCT = {
-      name: "Ácido Hialurónico Reticulado Ultra-3",
-      pain: "desabastecimiento con el laboratorio y viales que generan nódulos",
-      relief: "cero nódulos garantizado por BDDE ultra purificado y despacho en 24h",
-      cost: 42,
-      price: 190,
-      markdownContent: "",
-      markdownFileName: ""
-    };
+    const DEFAULT_CATALOG = [
+      {
+        id: "prod_1",
+        name: "Ácido Hialurónico Sub-Q Reticulado Ultra-3",
+        pain: "desabastecimiento con el laboratorio y viales que generan nódulos",
+        relief: "cero nódulos garantizado por BDDE ultra purificado y despacho en 24h",
+        cost: 42,
+        price: 190,
+        fileName: "acido-hialuronico.md"
+      },
+      {
+        id: "prod_2",
+        name: "Toxina Botulínica Tipo A 100 UI",
+        pain: "pérdida rápida de efecto a los 2 meses y reconstitución inestable",
+        relief: "durabilidad clínica de 5 meses con complejo proteico al 99.8% puro",
+        cost: 65,
+        price: 240,
+        fileName: "toxina-botulinica.md"
+      }
+    ];
 
     const PHASES_INFO = [
       { id: 0, tag: "Fase 1", name: "Apertura y Desarme", goal: "Desarmar guardia del doctor en los primeros 20 segundos" },
@@ -376,15 +412,22 @@
     ];
 
     // --- VARIABLES DE ESTADO ---
-    let product = JSON.parse(localStorage.getItem('app_seller_product')) || DEFAULT_PRODUCT;
+    let catalog = JSON.parse(localStorage.getItem('app_seller_catalog')) || DEFAULT_CATALOG;
+    let activeProductId = localStorage.getItem('app_seller_active_id') || catalog[0].id;
     let objections = JSON.parse(localStorage.getItem('app_seller_objections')) || DEFAULT_OBJECTIONS;
     let currentPhase = 0;
     let currentMethod = 'reverse';
 
+    // Obtener producto activo actual
+    function getActiveProduct() {
+      return catalog.find(p => p.id === activeProductId) || catalog[0];
+    }
+
     // --- CÁLCULOS FINANCIEROS DINÁMICOS ---
     function getFinancials() {
-      const cost = parseFloat(product.cost) || 0;
-      const price = parseFloat(product.price) || 0;
+      const prod = getActiveProduct();
+      const cost = parseFloat(prod.cost) || 0;
+      const price = parseFloat(prod.price) || 0;
       const netMargin = Math.max(0, price - cost);
       const marginPct = price > 0 ? ((netMargin / price) * 100).toFixed(0) : 0;
       const weeklyFivePatients = netMargin * 5;
@@ -400,78 +443,188 @@
       };
     }
 
-    // --- SUBIDA Y PROCESAMIENTO DE MARKDOWN (.MD) ---
-    function handleProductMarkdownUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    // --- PARSER INTELIGENTE Y FLEXIBLE DE MARKDOWN ---
+    function parseMarkdownToProduct(text, fileName) {
+      const lines = text.split('\n');
+      let name = fileName.replace(/\.(md|markdown|txt)$/i, '').replace(/[-_]/g, ' ');
+      let pain = "";
+      let relief = "";
+      let cost = null;
+      let price = null;
 
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result;
-        product.markdownContent = text;
-        product.markdownFileName = file.name;
+      for (let rawLine of lines) {
+        let line = rawLine.trim();
+        if (!line) continue;
 
-        // Parser inteligente de campos clave en Markdown
-        const lines = text.split('\n');
-        lines.forEach(line => {
-          const l = line.trim();
-          
-          // Regex para detectar campos flexibles tipo: Producto: ..., Dolor: ..., Costo: ...
-          const matchField = (regex) => {
-            const m = l.match(regex);
-            return m ? m[1].trim() : null;
-          };
+        // Limpiar viñetas (- , * , 1. ) y formato markdown (** , __ , ##)
+        let clean = line
+          .replace(/^[-*•]\s+/, '')
+          .replace(/^[0-9]+\.\s+/, '')
+          .replace(/\*\*/g, '')
+          .replace(/__/g, '')
+          .replace(/^#+\s*/, '')
+          .trim();
 
-          const nameVal = matchField(/^(?:#\s*|producto:\s*|nombre:\s*|insumo:\s*)(.+)$/i);
-          const painVal = matchField(/^(?:dolor|problema|molestia|queja):\s*(.+)$/i);
-          const reliefVal = matchField(/^(?:alivio|diferencial|solución|solucion|beneficio):\s*(.+)$/i);
-          const costVal = matchField(/^(?:costo|coste|precio compra|valor vial):\s*\$?([0-9]+(?:\.[0-9]+)?)/i);
-          const priceVal = matchField(/^(?:precio|cobro|sesión|sesion|venta paciente):\s*\$?([0-9]+(?:\.[0-9]+)?)/i);
+        // 1. Extraer Nombre / Producto
+        const nameMatch = clean.match(/^(?:producto|nombre|insumo|referencia|título|titulo)\s*[:=\-]\s*(.+)$/i);
+        if (nameMatch && nameMatch[1].trim().length > 1) {
+          name = nameMatch[1].trim();
+        }
 
-          if (nameVal && nameVal.length > 2) document.getElementById('inpProdName').value = nameVal;
-          if (painVal) document.getElementById('inpProdPain').value = painVal;
-          if (reliefVal) document.getElementById('inpProdRelief').value = reliefVal;
-          if (costVal) document.getElementById('inpProdCost').value = costVal;
-          if (priceVal) document.getElementById('inpProdPrice').value = priceVal;
-        });
+        // 2. Extraer Dolor / Problema
+        const painMatch = clean.match(/^(?:dolor|problema|queja|molestia|inconveniente|falla|obstaculo)\s*[:=\-]\s*(.+)$/i);
+        if (painMatch && painMatch[1].trim().length > 2) {
+          pain = painMatch[1].trim();
+        }
 
-        updateMdStatusUI();
-        lucide.createIcons();
-      };
-      reader.readAsText(file);
-    }
+        // 3. Extraer Alivio / Solución / Diferencial
+        const reliefMatch = clean.match(/^(?:alivio|diferencial|solución|solucion|beneficio|ventaja|propuesta|diferenciador)\s*[:=\-]\s*(.+)$/i);
+        if (reliefMatch && reliefMatch[1].trim().length > 2) {
+          relief = reliefMatch[1].trim();
+        }
 
-    function updateMdStatusUI() {
-      const badge = document.getElementById('mdStatusBadge');
-      const text = document.getElementById('mdStatusText');
-      if (product.markdownFileName) {
-        badge.classList.remove('hidden');
-        text.textContent = `📄 Ficha: ${product.markdownFileName}`;
-      } else {
-        badge.classList.add('hidden');
+        // 4. Extraer Costo Insumo
+        const costMatch = clean.match(/^(?:costo|coste|compra|precio compra|inversión|inversion|insumo doctor|costo insumo)\s*[:=\-]\s*.*?([0-9]+(?:\.[0-9]+)?)/i);
+        if (costMatch) {
+          cost = parseFloat(costMatch[1]);
+        }
+
+        // 5. Extraer Precio Sesión / Cobro al Paciente
+        const priceMatch = clean.match(/^(?:precio|cobro|sesión|sesion|venta|precio paciente|pvp|venta paciente)\s*[:=\-]\s*.*?([0-9]+(?:\.[0-9]+)?)/i);
+        if (priceMatch) {
+          price = parseFloat(priceMatch[1]);
+        }
       }
+
+      // Valores por defecto inteligentes si no vinieron en la ficha
+      if (!pain) {
+        pain = "desabastecimiento, inconsistencia en resultados o bajo margen con proveedores habituales";
+      }
+      if (!relief) {
+        // Tomar la primera línea descriptiva que no sea el título
+        const descLine = lines.find(l => l.trim().length > 20 && !l.includes(':'));
+        relief = descLine ? descLine.replace(/[\*\_#]/g, '').trim().substring(0, 100) : "alta calidad con certificación médica, despacho inmediato y máxima rentabilidad";
+      }
+      if (cost === null) cost = 45;
+      if (price === null) price = 180;
+
+      return {
+        id: "prod_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+        name: name,
+        pain: pain,
+        relief: relief,
+        cost: cost,
+        price: price,
+        fileName: fileName,
+        markdownContent: text
+      };
     }
 
-    function clearMarkdownData() {
-      product.markdownContent = "";
-      product.markdownFileName = "";
-      document.getElementById('inpProdMdFile').value = "";
-      updateMdStatusUI();
+    // --- SUBIDA DE MÚLTIPLES ARCHIVOS ---
+    async function handleMultipleMarkdownUpload(e) {
+      const files = Array.from(e.target.files);
+      if (!files || files.length === 0) return;
+
+      const readPromises = files.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            const text = evt.target.result;
+            const parsed = parseMarkdownToProduct(text, file.name);
+            resolve(parsed);
+          };
+          reader.readAsText(file);
+        });
+      });
+
+      const newProducts = await Promise.all(readPromises);
+
+      // Agregar o actualizar en catálogo
+      newProducts.forEach(newP => {
+        const existingIdx = catalog.findIndex(p => p.fileName === newP.fileName || p.name.toLowerCase() === newP.name.toLowerCase());
+        if (existingIdx >= 0) {
+          catalog[existingIdx] = newP;
+        } else {
+          catalog.unshift(newP);
+        }
+      });
+
+      // ACTIVAR EL PRIMER PRODUCTO SUBIDO DE INMEDIATO
+      activeProductId = newProducts[0].id;
+
+      // GUARDAR Y SINCRONIZAR TODO
+      saveCatalogState();
+      populateFormWithActiveProduct();
+      renderCatalogListModal();
+      renderAll();
+
+      // Limpiar input para permitir volver a subir el mismo archivo
+      e.target.value = '';
+
+      alert(`✅ ¡Ficha técnica procesada con éxito!\n\nInsumo Activo: "${newProducts[0].name}"\nCosto: $${newProducts[0].cost} | Cobro Paciente: $${newProducts[0].price}\n\nLos guiones de las 5 fases y el margen ya están adaptados.`);
+    }
+
+    function switchActiveProduct(id) {
+      activeProductId = id;
+      saveCatalogState();
+      populateFormWithActiveProduct();
+      renderAll();
+    }
+
+    function saveCatalogState() {
+      localStorage.setItem('app_seller_catalog', JSON.stringify(catalog));
+      localStorage.setItem('app_seller_active_id', activeProductId);
+    }
+
+    function createNewBlankProduct() {
+      const newP = {
+        id: "prod_" + Date.now(),
+        name: "Nuevo Insumo Estético",
+        pain: "demoras y poca durabilidad",
+        relief: "alta biocompatibilidad y despacho ágil",
+        cost: 50,
+        price: 200,
+        fileName: "manual.md"
+      };
+      catalog.unshift(newP);
+      activeProductId = newP.id;
+      saveCatalogState();
+      populateFormWithActiveProduct();
+      renderCatalogListModal();
+      renderAll();
+    }
+
+    function deleteProductFromCatalog(id, e) {
+      e.stopPropagation();
+      if (catalog.length <= 1) {
+        return alert("Debes mantener al menos un insumo en tu catálogo.");
+      }
+      if (!confirm("¿Eliminar este insumo del catálogo?")) return;
+
+      catalog = catalog.filter(p => p.id !== id);
+      if (activeProductId === id) {
+        activeProductId = catalog[0].id;
+      }
+      saveCatalogState();
+      populateFormWithActiveProduct();
+      renderCatalogListModal();
+      renderAll();
     }
 
     // --- MOTOR DE GUIONES DINÁMICOS ---
     function generateScript(phaseIdx, method) {
       const f = getFinancials();
-      const pName = product.name;
-      const pPain = product.pain;
-      const pRelief = product.relief;
+      const prod = getActiveProduct();
+      const pName = prod.name;
+      const pPain = prod.pain;
+      const pRelief = prod.relief;
 
       const scripts = {
         reverse: [
           // Fase 0
-          `"Doctor, sé que no esperaba mi llamada y probablemente está por entrar a consulta. Le robo 20 segundos exactos: le llamo porque estamos abasteciendo a clínicas estéticas de la zona con <strong>${pName}</strong> para erradicar el problema de <em>${pPain}</em>. Si esto no es un problema prioritario en su cabina hoy, dígamelo con confianza y le cuelgo ahora mismo."`,
+          `"Doctor, sé que no esperaba mi llamada y probablemente está por entrar a consulta. Le robo 20 segundos exactos: le llamo porque estamos abasteciendo a clínicas de la zona con <strong>${pName}</strong> para erradicar el problema de <em>${pPain}</em>. Si esto no es un problema prioritario en su cabina hoy, dígamelo con confianza y le cuelgo ahora mismo."`,
           // Fase 1
-          `"Doctor, antes de mostrarle nada de <strong>${pName}</strong>: la mayoría de cirujanos me comentan que están frustrados por <em>${pPain}</em>. En su caso particular, ¿ha tenido algún inconveniente similar recientemente o con su proveedor actual todo marcha al 100%?"`,
+          `"Doctor, antes de mostrarle nada de <strong>${pName}</strong>: la mayoría de cirujanos me comentan que están frustrados por <em>${pPain}</em>. En su caso particular, ¿ha tenido algún inconveniente similar recientemente o con su proveedor habitual todo marcha al 100%?"`,
           // Fase 2 (Puente)
           `"Doctor, déjeme ver si le escuché bien: usted me dice que lo que más le preocupa es <em>${pPain}</em> y que le gustaría ganar más por sesión. Si hubiera una manera comprobada de tener <strong>${pRelief}</strong> dejándole <strong>${f.netMarginStr} netos por paciente</strong>, ¿estaría dispuesto a revisar un lote inicial o preferiría dejarlo pasar?"`,
           // Fase 3
@@ -481,7 +634,7 @@
         ],
         nepq: [
           // Fase 0
-          `"Hola Doctor, le habla [Tu Nombre] de la línea estética. Sé que está ocupado. La razón puntual de mi llamada es que estamos ayudando a médicos que aplican <strong>${pName}</strong> y están hartos de <em>${pPain}</em>. ¿Estaría abierto a ver cómo otros colegas lo resolvieron o prefiere que no le quite tiempo?"`,
+          `"Hola Doctor, le habla [Tu Nombre] de la línea médica. Sé que está ocupado. La razón puntual de mi llamada es que estamos ayudando a especialistas que aplican <strong>${pName}</strong> y están hartos de <em>${pPain}</em>. ¿Estaría abierto a ver cómo otros colegas lo resolvieron o prefiere que no le quite tiempo?"`,
           // Fase 1
           `"Doctor, cuando aplica tratamientos con su línea habitual... ¿qué tan seguido se topa con <em>${pPain}</em>? Y cuando eso pasa, ¿cuánto tiempo o dinero le cuesta corregirlo con el paciente?"`,
           // Fase 2 (Puente)
@@ -548,10 +701,59 @@
 
       // Indicadores en Header
       const f = getFinancials();
-      document.getElementById('headerProductLabel').textContent = `${product.name} • Margen: ${f.marginPctStr}`;
       document.getElementById('statCosto').textContent = f.cost;
       document.getElementById('statPrecio').textContent = f.price;
-      document.getElementById('statMargen').textContent = `+${f.marginPctStr} (${f.netMarginStr} netos/paciente)`;
+      document.getElementById('statMargen').textContent = `+${f.marginPctStr} (${f.netMarginStr} limpios)`;
+
+      // Actualizar Dropdown del Header
+      renderQuickSelect();
+      lucide.createIcons();
+    }
+
+    function renderQuickSelect() {
+      const select = document.getElementById('quickProductSelect');
+      select.innerHTML = '';
+      catalog.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        opt.selected = p.id === activeProductId;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderCatalogListModal() {
+      const list = document.getElementById('catalogList');
+      const count = document.getElementById('catCount');
+      count.textContent = catalog.length;
+      list.innerHTML = '';
+
+      catalog.forEach(p => {
+        const isActive = p.id === activeProductId;
+        const div = document.createElement('div');
+        div.onclick = () => {
+          switchActiveProduct(p.id);
+          renderCatalogListModal();
+        };
+        div.className = `p-2 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition ${
+          isActive 
+            ? 'bg-emerald-500/15 border-emerald-500/50 text-white font-semibold' 
+            : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+        }`;
+        div.innerHTML = `
+          <div class="truncate mr-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
+            <span class="truncate">${p.name}</span>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-[10px] text-slate-400 font-mono font-normal">$${p.cost} ➔ $${p.price}</span>
+            <button onclick="deleteProductFromCatalog('${p.id}', event)" class="text-slate-500 hover:text-rose-400 p-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
 
       lucide.createIcons();
     }
@@ -615,10 +817,11 @@
       if (!obj) return;
 
       const f = getFinancials();
+      const prod = getActiveProduct();
       let resp = obj.response
-        .replace(/{PRODUCTO}/g, `<strong>${product.name}</strong>`)
-        .replace(/{DOLOR_TIPICO}/g, `<em>${product.pain}</em>`)
-        .replace(/{ALIVIO_CLAVE}/g, `<strong>${product.relief}</strong>`)
+        .replace(/{PRODUCTO}/g, `<strong>${prod.name}</strong>`)
+        .replace(/{DOLOR_TIPICO}/g, `<em>${prod.pain}</em>`)
+        .replace(/{ALIVIO_CLAVE}/g, `<strong>${prod.relief}</strong>`)
         .replace(/{COSTO}/g, `<strong>${f.cost}</strong>`)
         .replace(/{PRECIO_SESION}/g, `<strong>${f.price}</strong>`)
         .replace(/{MARGEN_NETO}/g, `<strong>${f.netMarginStr}</strong>`);
@@ -630,7 +833,7 @@
       openModal('modalObjectionResponse');
     }
 
-    // --- MODALES Y CRUD ---
+    // --- MODALES Y FORMULARIOS ---
     function openModal(id) {
       document.getElementById(id).classList.remove('hidden');
       lucide.createIcons();
@@ -641,26 +844,33 @@
     }
 
     function openProductModal() {
-      document.getElementById('inpProdName').value = product.name;
-      document.getElementById('inpProdPain').value = product.pain;
-      document.getElementById('inpProdRelief').value = product.relief;
-      document.getElementById('inpProdCost').value = product.cost;
-      document.getElementById('inpProdPrice').value = product.price;
-      updateMdStatusUI();
+      populateFormWithActiveProduct();
+      renderCatalogListModal();
       openModal('modalProduct');
+    }
+
+    function populateFormWithActiveProduct() {
+      const prod = getActiveProduct();
+      document.getElementById('inpProdName').value = prod.name;
+      document.getElementById('inpProdPain').value = prod.pain;
+      document.getElementById('inpProdRelief').value = prod.relief;
+      document.getElementById('inpProdCost').value = prod.cost;
+      document.getElementById('inpProdPrice').value = prod.price;
     }
 
     function saveProduct(e) {
       e.preventDefault();
-      product.name = document.getElementById('inpProdName').value.trim();
-      product.pain = document.getElementById('inpProdPain').value.trim();
-      product.relief = document.getElementById('inpProdRelief').value.trim();
-      product.cost = parseFloat(document.getElementById('inpProdCost').value) || 0;
-      product.price = parseFloat(document.getElementById('inpProdPrice').value) || 0;
+      const prod = getActiveProduct();
+      prod.name = document.getElementById('inpProdName').value.trim();
+      prod.pain = document.getElementById('inpProdPain').value.trim();
+      prod.relief = document.getElementById('inpProdRelief').value.trim();
+      prod.cost = parseFloat(document.getElementById('inpProdCost').value) || 0;
+      prod.price = parseFloat(document.getElementById('inpProdPrice').value) || 0;
 
-      localStorage.setItem('app_seller_product', JSON.stringify(product));
+      saveCatalogState();
       closeModal('modalProduct');
-      renderCard();
+      renderAll();
+      alert("✅ Cambios guardados. Todos los guiones han sido actualizados.");
     }
 
     function openNewObjectionModal() {
@@ -696,26 +906,28 @@
       const text = document.getElementById('inpCustomMethodText').value.trim();
       if (!text) return alert("Por favor escribe o pega algún texto.");
       
-      product.relief += ` (Enfoque adicional: ${text.substring(0, 45)}...)`;
-      localStorage.setItem('app_seller_product', JSON.stringify(product));
-      alert("¡Principios incorporados a los guiones en vivo!");
+      const prod = getActiveProduct();
+      prod.relief += ` (Enfoque adicional: ${text.substring(0, 45)}...)`;
+      saveCatalogState();
+      alert("¡Principios incorporados a los guiones del insumo activo!");
       closeModal('modalKnowledge');
       renderCard();
     }
 
     function showFinancialModal() {
       const f = getFinancials();
-      alert(`📊 IMPACTO FINANCIERO EN VIVO:\n\n• Insumo: ${f.cost}\n• Cobro por sesión: ${f.price}\n• Margen Neto por paciente: ${f.netMarginStr} (${f.marginPctStr})\n• 5 pacientes/semana: ${f.weeklyFive} limpios\n• 20 pacientes/mes: ${f.monthlyTwenty} netos`);
+      const prod = getActiveProduct();
+      alert(`📊 IMPACTO FINANCIERO EN VIVO [${prod.name}]:\n\n• Insumo al Doctor: ${f.cost}\n• Cobro por sesión: ${f.price}\n• Margen Neto por paciente: ${f.netMarginStr} (${f.marginPctStr})\n• 5 pacientes/semana: ${f.weeklyFive} limpios\n• 20 pacientes/mes: ${f.monthlyTwenty} netos`);
     }
 
     // --- IMPORTAR / EXPORTAR JSON ---
     function exportDataJSON() {
-      const data = { product, objections };
+      const data = { catalog, activeProductId, objections };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cerebro-ventas-estetica-${Date.now()}.json`;
+      a.download = `cerebro-ventas-catalogo-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -728,14 +940,16 @@
       reader.onload = function(evt) {
         try {
           const imported = JSON.parse(evt.target.result);
-          if (imported.product && imported.objections) {
-            product = imported.product;
+          if (imported.catalog && imported.objections) {
+            catalog = imported.catalog;
+            activeProductId = imported.activeProductId || catalog[0].id;
             objections = imported.objections;
-            localStorage.setItem('app_seller_product', JSON.stringify(product));
+            saveCatalogState();
             localStorage.setItem('app_seller_objections', JSON.stringify(objections));
-            renderCard();
+            populateFormWithActiveProduct();
+            renderAll();
             renderObjections();
-            alert("¡Cerebro de ventas importado exitosamente!");
+            alert("¡Catálogo completo importado exitosamente!");
             closeModal('modalKnowledge');
           } else {
             alert("El archivo no tiene el formato correcto.");
@@ -747,10 +961,14 @@
       reader.readAsText(file);
     }
 
-    // --- INICIALIZACIÓN ---
-    window.addEventListener('DOMContentLoaded', () => {
+    function renderAll() {
       renderPipeline();
       renderCard();
+    }
+
+    // --- INICIALIZACIÓN ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
       renderObjections();
       lucide.createIcons();
     });
