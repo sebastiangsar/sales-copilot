@@ -23,7 +23,7 @@
       </div>
       <div>
         <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
-          Aesthetic Sales Co-Pilot <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v1.0 Live</span>
+          Aesthetic Sales Co-Pilot <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v1.1 Live</span>
         </h1>
         <p class="text-xs text-slate-400" id="headerProductLabel">Cargando producto...</p>
       </div>
@@ -167,7 +167,7 @@
 
   </main>
 
-  <!-- MODAL: OBJECIÓN EN TIEMPO REAL (DISPARADA POR TOQUE) -->
+  <!-- MODAL: OBJECIÓN EN TIEMPO REAL -->
   <div id="modalObjectionResponse" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-rose-500/40 rounded-2xl max-w-lg w-full p-5 shadow-2xl relative glow-active">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
@@ -195,9 +195,9 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIGURAR PRODUCTO -->
+  <!-- MODAL: CONFIGURAR PRODUCTO (CON SOPORTE PARA SUBIR MARKDOWN .MD) -->
   <div id="modalProduct" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-5 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-5 shadow-2xl overflow-y-auto max-h-[90vh]">
       <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
         <h3 class="font-bold text-base text-white flex items-center gap-2">
           <i data-lucide="package" class="w-5 h-5 text-emerald-400"></i> Ficha del Insumo Médico / Estético
@@ -205,6 +205,24 @@
         <button onclick="closeModal('modalProduct')" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
+      </div>
+
+      <!-- SECCIÓN: SUBIDA DE ARCHIVO MARKDOWN (.MD) -->
+      <div class="mb-4 bg-slate-950 border border-dashed border-emerald-500/40 rounded-xl p-3 text-center">
+        <input type="file" id="inpProdMdFile" accept=".md,.markdown,.txt" onchange="handleProductMarkdownUpload(event)" class="hidden">
+        <label for="inpProdMdFile" class="cursor-pointer flex flex-col items-center justify-center gap-1.5 py-1">
+          <div class="bg-emerald-500/20 p-2 rounded-lg text-emerald-400">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs font-semibold text-emerald-300">Subir Ficha Técnica en Markdown (.md / .txt)</span>
+          <span class="text-[10px] text-slate-400">Rellena automáticamente los datos y guarda la documentación técnica</span>
+        </label>
+        <div id="mdStatusBadge" class="hidden mt-2 text-[11px] bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg text-slate-300 flex items-center justify-between">
+          <span id="mdStatusText" class="truncate font-mono">Ficha cargada</span>
+          <button type="button" onclick="clearMarkdownData()" class="text-rose-400 hover:text-rose-300 ml-2">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
 
       <form id="productForm" onsubmit="saveProduct(event)" class="space-y-3 text-xs">
@@ -223,7 +241,7 @@
           <input type="text" id="inpProdRelief" required placeholder="ej: Pureza BDDE indetectable, despacho en 24h garantizado y registro sanitario" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
         </div>
 
-        <div class="grid grid-cols-2 gap-3 pt-2">
+        <div class="grid grid-cols-2 gap-3 pt-1">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Costo al Doctor (USD):</label>
             <input type="number" id="inpProdCost" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
@@ -317,7 +335,9 @@
       pain: "desabastecimiento con el laboratorio y viales que generan nódulos",
       relief: "cero nódulos garantizado por BDDE ultra purificado y despacho en 24h",
       cost: 42,
-      price: 190
+      price: 190,
+      markdownContent: "",
+      markdownFileName: ""
     };
 
     const PHASES_INFO = [
@@ -359,7 +379,7 @@
     let product = JSON.parse(localStorage.getItem('app_seller_product')) || DEFAULT_PRODUCT;
     let objections = JSON.parse(localStorage.getItem('app_seller_objections')) || DEFAULT_OBJECTIONS;
     let currentPhase = 0;
-    let currentMethod = 'reverse'; // 'reverse' | 'nepq' | 'consultive'
+    let currentMethod = 'reverse';
 
     // --- CÁLCULOS FINANCIEROS DINÁMICOS ---
     function getFinancials() {
@@ -378,6 +398,65 @@
         weeklyFive: `$${weeklyFivePatients.toFixed(2)} USD`,
         monthlyTwenty: `$${monthlyTwentyPatients.toFixed(2)} USD`
       };
+    }
+
+    // --- SUBIDA Y PROCESAMIENTO DE MARKDOWN (.MD) ---
+    function handleProductMarkdownUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        product.markdownContent = text;
+        product.markdownFileName = file.name;
+
+        // Parser inteligente de campos clave en Markdown
+        const lines = text.split('\n');
+        lines.forEach(line => {
+          const l = line.trim();
+          
+          // Regex para detectar campos flexibles tipo: Producto: ..., Dolor: ..., Costo: ...
+          const matchField = (regex) => {
+            const m = l.match(regex);
+            return m ? m[1].trim() : null;
+          };
+
+          const nameVal = matchField(/^(?:#\s*|producto:\s*|nombre:\s*|insumo:\s*)(.+)$/i);
+          const painVal = matchField(/^(?:dolor|problema|molestia|queja):\s*(.+)$/i);
+          const reliefVal = matchField(/^(?:alivio|diferencial|solución|solucion|beneficio):\s*(.+)$/i);
+          const costVal = matchField(/^(?:costo|coste|precio compra|valor vial):\s*\$?([0-9]+(?:\.[0-9]+)?)/i);
+          const priceVal = matchField(/^(?:precio|cobro|sesión|sesion|venta paciente):\s*\$?([0-9]+(?:\.[0-9]+)?)/i);
+
+          if (nameVal && nameVal.length > 2) document.getElementById('inpProdName').value = nameVal;
+          if (painVal) document.getElementById('inpProdPain').value = painVal;
+          if (reliefVal) document.getElementById('inpProdRelief').value = reliefVal;
+          if (costVal) document.getElementById('inpProdCost').value = costVal;
+          if (priceVal) document.getElementById('inpProdPrice').value = priceVal;
+        });
+
+        updateMdStatusUI();
+        lucide.createIcons();
+      };
+      reader.readAsText(file);
+    }
+
+    function updateMdStatusUI() {
+      const badge = document.getElementById('mdStatusBadge');
+      const text = document.getElementById('mdStatusText');
+      if (product.markdownFileName) {
+        badge.classList.remove('hidden');
+        text.textContent = `📄 Ficha: ${product.markdownFileName}`;
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function clearMarkdownData() {
+      product.markdownContent = "";
+      product.markdownFileName = "";
+      document.getElementById('inpProdMdFile').value = "";
+      updateMdStatusUI();
     }
 
     // --- MOTOR DE GUIONES DINÁMICOS ---
@@ -467,7 +546,7 @@
       ];
       document.getElementById('cardTip').textContent = tips[currentPhase];
 
-      // Update header indicators
+      // Indicadores en Header
       const f = getFinancials();
       document.getElementById('headerProductLabel').textContent = `${product.name} • Margen: ${f.marginPctStr}`;
       document.getElementById('statCosto').textContent = f.cost;
@@ -567,6 +646,7 @@
       document.getElementById('inpProdRelief').value = product.relief;
       document.getElementById('inpProdCost').value = product.cost;
       document.getElementById('inpProdPrice').value = product.price;
+      updateMdStatusUI();
       openModal('modalProduct');
     }
 
