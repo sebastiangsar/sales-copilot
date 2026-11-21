@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aesthetic Sales Co-Pilot</title>
+  <title>Aesthetic Sales Co-Pilot Pro</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -26,7 +26,7 @@
       </div>
       <div>
         <h1 class="font-bold text-base md:text-lg leading-tight text-white flex items-center gap-2">
-          Aesthetic Sales Co-Pilot <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v2.0 Tactics</span>
+          Aesthetic Sales Co-Pilot <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">v3.0 Pro</span>
         </h1>
         <!-- SELECTOR RÁPIDO DE PRODUCTO EN VIVO -->
         <div class="flex items-center gap-1.5 mt-0.5">
@@ -66,86 +66,140 @@
     </div>
   </header>
 
-  <!-- METHODOLOGY PILLS & PIPELINE BAR -->
-  <section class="bg-slate-900/60 border-b border-slate-800/80 px-4 py-2.5">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-      <!-- Selector de Metodología -->
-      <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-        <span class="text-xs font-medium text-slate-400 mr-1 flex items-center gap-1">
-          <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Enfoque:
-        </span>
-        <button onclick="setMethodology('reverse')" id="btnMetReverse" class="px-3 py-1 text-xs rounded-full font-medium transition border border-emerald-500/40 bg-emerald-500/20 text-emerald-300">
-          Reverse Selling
+  <!-- WORKSPACE MODE SWITCHER (FLUJO INICIAL VS PIPELINE DE CIERRE) -->
+  <section class="bg-slate-900/80 border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-slate-400 font-medium">Modo de Guion:</span>
+      <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex gap-1">
+        <button onclick="setMainView('interactions')" id="tabBtnInteractions" class="px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Flujo Inicial (5 Interacciones)
         </button>
-        <button onclick="setMethodology('nepq')" id="btnMetNEPQ" class="px-3 py-1 text-xs rounded-full font-medium transition border border-slate-700 bg-slate-800 text-slate-400 hover:text-white">
-          NEPQ (Preguntas Dolor)
-        </button>
-        <button onclick="setMethodology('consultive')" id="btnMetConsultive" class="px-3 py-1 text-xs rounded-full font-medium transition border border-slate-700 bg-slate-800 text-slate-400 hover:text-white">
-          Venta Consultiva ROI
+        <button onclick="setMainView('pipeline')" id="tabBtnPipeline" class="px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Pipeline Avanzado (5 Fases)
         </button>
       </div>
+    </div>
 
-      <!-- PIPELINE: 5 FASES TÁCTILES -->
-      <nav id="pipelineNav" class="grid grid-cols-5 gap-1.5 w-full md:w-2/3 max-w-3xl"></nav>
+    <!-- Pipeline Pills (Visible solo en modo pipeline) -->
+    <div id="pipelineContainer" class="hidden flex-1 max-w-2xl ml-auto">
+      <nav id="pipelineNav" class="grid grid-cols-5 gap-1.5 w-full"></nav>
+    </div>
+
+    <!-- Sub-Selector Metodología (Visible solo en modo pipeline) -->
+    <div id="methodologyContainer" class="hidden flex items-center gap-1">
+      <button onclick="setMethodology('reverse')" id="btnMetReverse" class="px-2.5 py-1 text-[11px] rounded-lg font-medium border border-emerald-500/40 bg-emerald-500/20 text-emerald-300">Reverse</button>
+      <button onclick="setMethodology('nepq')" id="btnMetNEPQ" class="px-2.5 py-1 text-[11px] rounded-lg font-medium border border-slate-700 bg-slate-800 text-slate-400">NEPQ</button>
+      <button onclick="setMethodology('consultive')" id="btnMetConsultive" class="px-2.5 py-1 text-[11px] rounded-lg font-medium border border-slate-700 bg-slate-800 text-slate-400">ROI</button>
     </div>
   </section>
 
   <!-- MAIN LIVE WORKSPACE -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
     
-    <!-- LEFT: THE CUE CARD (QUÉ DECIR EN VIVO) - 7 COLS -->
+    <!-- LEFT: WORKSPACE AREA (7 COLS) -->
     <div class="lg:col-span-7 flex flex-col gap-3">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col justify-between">
-        
+
+      <!-- VISTA A: FLUJO INICIAL DE 5 INTERACCIONES -->
+      <div id="viewInteractions" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col justify-between">
         <div>
-          <!-- Meta Header Card -->
+          <!-- Pestañas de las 5 Interacciones -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 overflow-x-auto gap-1">
+            <div class="flex items-center gap-1.5 w-full" id="interactionNav"></div>
+          </div>
+
+          <!-- Título y objetivo de la interacción actual -->
+          <div class="flex items-center justify-between mb-2">
+            <span id="interStepBadge" class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
+              INTERACCIÓN 1
+            </span>
+            <span id="interStepGoal" class="text-xs text-slate-400 font-medium truncate ml-2">
+              Contacto Inicial y Permiso
+            </span>
+          </div>
+
+          <!-- Guion de la interacción -->
+          <div class="mb-4">
+            <h2 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-1">🗣️ Qué Decir Literalmente:</h2>
+            <div id="interScript" class="text-base md:text-lg font-medium text-slate-100 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed shadow-inner">
+              Cargando interacción...
+            </div>
+          </div>
+
+          <!-- Objeciones rápidas de este paso específico -->
+          <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 mb-2">
+            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1 mb-2">
+              🛑 Si el doctor interrumpe con:
+            </span>
+            <div id="interQuickObjButtons" class="flex flex-wrap gap-1.5 mb-3">
+              <!-- Botones táctiles específicos del paso -->
+            </div>
+
+            <!-- Respuesta estratégica desplegada -->
+            <div id="interQuickResponseBox" class="hidden bg-emerald-950/20 border border-emerald-500/30 p-3 rounded-lg text-xs leading-relaxed text-emerald-200">
+              <strong id="interQuickResponseLabel" class="text-emerald-300 block font-semibold mb-1">✅ Respuesta Estratégica:</strong>
+              <span id="interQuickResponseText"></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Controles: Anterior / Siguiente Interacción -->
+        <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-800">
+          <button onclick="prevInteraction()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i> Paso Anterior
+          </button>
+          <button onclick="nextInteraction()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition">
+            Siguiente Paso <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- VISTA B: PIPELINE AVANZADO (5 FASES) -->
+      <div id="viewPipeline" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col justify-between">
+        <div>
           <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
             <div class="flex items-center gap-2">
               <span id="cardPhaseTag" class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 FASE 1
               </span>
               <span id="cardGoal" class="text-xs font-medium text-slate-400">
-                Objetivo: Desarmar la guardia del doctor en 20s
+                Objetivo de la fase
               </span>
             </div>
             <span class="text-xs text-slate-400 flex items-center gap-1 font-mono">
-              <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400 animate-pulse"></i> LLAMADA EN CURSO
+              <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400 animate-pulse"></i> LIVE
             </span>
           </div>
 
-          <!-- THE SCRIPT CUE -->
           <div class="mb-4">
             <h2 class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-1">🗣️ Qué Decir Literalmente:</h2>
-            <div id="cardScript" class="text-lg md:text-xl font-medium text-slate-100 bg-slate-950/70 p-4 rounded-xl border border-slate-800/80 leading-relaxed">
-              Cargando guion adaptado...
+            <div id="cardScript" class="text-base md:text-lg font-medium text-slate-100 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed">
+              Cargando guion...
             </div>
           </div>
 
-          <!-- PRO TIP / PSICOLOGÍA -->
           <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2.5 text-amber-300 text-xs leading-snug">
             <i data-lucide="shield-alert" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
             <div>
-              <strong class="font-bold">Regla de oro médica:</strong>
-              <span id="cardTip">No presiones. Habla como un colega que resuelve un cuello de botella.</span>
+              <strong class="font-bold">Regla de oro:</strong>
+              <span id="cardTip">Habla como colega.</span>
             </div>
           </div>
         </div>
 
-        <!-- CONTROLS: ANTERIOR / SIGUIENTE -->
         <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800">
           <button onclick="prevPhase()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i> Fase Anterior
           </button>
-          
-          <button onclick="nextPhase()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition">
+          <button onclick="nextPhase()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition">
             Siguiente Fase <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
-
       </div>
+
     </div>
 
-    <!-- RIGHT: STRATEGIC OBJECTION PAD (BOTONES DE PÁNICO) - 5 COLS -->
+    <!-- RIGHT: STRATEGIC OBJECTION PAD (5 COLS) -->
     <div class="lg:col-span-5 flex flex-col gap-3">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col">
         
@@ -154,14 +208,14 @@
             <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
               <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i> Bóveda de Objeciones Raíz
             </h3>
-            <p class="text-[11px] text-slate-400">Desarme inmediato + 3 opciones de cierre táctico</p>
+            <p class="text-[11px] text-slate-400">Desarme + Botón Actualizar + 3 Cierres</p>
           </div>
           <button onclick="openNewObjectionModal()" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold">
             <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Añadir
           </button>
         </div>
         
-        <!-- TACTILE OBJECTION BUTTONS LIST (10 RAÍZ) -->
+        <!-- LISTA TÁCTIL DE LAS OBJECIONES -->
         <div id="objectionsList" class="flex flex-col gap-1.5 overflow-y-auto max-h-[440px] pr-1 custom-scrollbar"></div>
 
         <!-- IMPACTO FINANCIERO DINÁMICO TÁCTIL -->
@@ -176,7 +230,7 @@
 
   </main>
 
-  <!-- MODAL: OBJECIÓN AVANZADA (DESARME + 3 CIERRES DISTINTOS) -->
+  <!-- MODAL: OBJECIÓN AVANZADA (CON BOTÓN DE ACTUALIZAR / GENERAR OTRAS VARIACIONES) -->
   <div id="modalObjectionResponse" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-5">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-5 md:p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar">
       
@@ -190,9 +244,15 @@
             Título de Objeción
           </h3>
         </div>
-        <button onclick="closeModal('modalObjectionResponse')" class="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800/60">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <!-- BOTÓN ACTUALIZAR: GENERA OTRA RESPUESTA MEJORADA -->
+          <button onclick="cycleObjectionVariation()" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar Respuesta
+          </button>
+          <button onclick="closeModal('modalObjectionResponse')" class="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800/60">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- LO QUE DIJO EL DOCTOR -->
@@ -203,9 +263,12 @@
         </div>
       </div>
 
-      <!-- RESPUESTA ULTRA CONDENSADA (QUÉ DECIR) -->
+      <!-- RESPUESTA ULTRA CONDENSADA -->
       <div class="mb-4">
-        <span class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider block mb-1">🗣️ Lo que debo decir (Impacto Inmediato):</span>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">🗣️ Lo que debo decir (Impacto Inmediato):</span>
+          <span id="objVariationBadge" class="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">Ángulo 1: ROI & Valor</span>
+        </div>
         <div id="objModalResponse" class="text-sm md:text-base font-medium text-slate-100 bg-slate-950 p-3.5 rounded-xl border border-emerald-500/30 leading-relaxed shadow-inner">
           Cargando respuesta...
         </div>
@@ -214,9 +277,7 @@
       <!-- LOS 3 CIERRES TÁCTICOS -->
       <div class="mb-4">
         <span class="text-[10px] font-semibold text-amber-400 uppercase tracking-wider block mb-2">🎯 Elige 1 de los 3 Cierres Tácticos según la temperatura:</span>
-        <div id="objModalClosures" class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-          <!-- Tarjetas dinámicas de cierre 1, 2 y 3 -->
-        </div>
+        <div id="objModalClosures" class="grid grid-cols-1 md:grid-cols-3 gap-2.5"></div>
       </div>
 
       <button onclick="closeModal('modalObjectionResponse')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition">
@@ -225,7 +286,70 @@
     </div>
   </div>
 
-  <!-- MODAL: MI CATÁLOGO (SUBIDA DE MARKDOWN RESILIENTE) -->
+  <!-- MODAL: AGREGAR NUEVA OBJECIÓN CON FÓRMULA AUTOMÁTICA -->
+  <div id="modalNewObjection" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-sm text-white flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> Registrar Nueva Objeción
+        </h3>
+        <button onclick="closeModal('modalNewObjection')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="newObjForm" onsubmit="saveNewObjection(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Lo que dijo el doctor / objeción escuchada:</label>
+          <div class="flex gap-2">
+            <input type="text" id="inpObjPhrase" placeholder="ej: 'Los exosomas me parecen muy experimentales y caros'" required class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+            <button type="button" onclick="autoGenerateFormula()" class="px-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition flex items-center gap-1 text-[11px] whitespace-nowrap">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Auto-Fórmula
+            </button>
+          </div>
+          <span class="text-[10px] text-slate-400 mt-1 block">Toca "Auto-Fórmula" para que el sistema redacte la respuesta y los 3 cierres automáticamente.</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Título Corto del Botón:</label>
+            <input type="text" id="inpObjTitle" placeholder="ej: 'Es experimental'" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tipo Raíz:</label>
+            <input type="text" id="inpObjType" placeholder="ej: Confianza / Seguridad" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tu Respuesta de Impacto:</label>
+          <textarea id="inpObjResponse" rows="2" placeholder="Respuesta que desactiva la objeción..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Cierre 1 (Prueba Piloto / Bajo Riesgo):</label>
+          <input type="text" id="inpObjClosure1" placeholder="Frase de cierre 1..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Cierre 2 (Análisis / ROI):</label>
+            <input type="text" id="inpObjClosure2" placeholder="Frase de cierre 2..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Cierre 3 (Agenda / Respaldo):</label>
+            <input type="text" id="inpObjClosure3" placeholder="Frase de cierre 3..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition">
+          Guardar en la Bóveda Táctil
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MI CATÁLOGO (.MD) -->
   <div id="modalProduct" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 shadow-2xl overflow-y-auto max-h-[92vh] custom-scrollbar">
       <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
@@ -240,7 +364,6 @@
         </button>
       </div>
 
-      <!-- SECCIÓN: SUBIDA EN LOTE DE MÚLTIPLES ARCHIVOS (.MD / .TXT) -->
       <div class="mb-4 bg-slate-950 border border-dashed border-emerald-500/50 hover:border-emerald-400 rounded-xl p-4 text-center transition">
         <input type="file" id="inpProdMdFile" accept=".md,.markdown,.txt" multiple onchange="handleMultipleMarkdownUpload(event)" class="hidden">
         <label for="inpProdMdFile" class="cursor-pointer flex flex-col items-center justify-center gap-2">
@@ -249,12 +372,11 @@
           </div>
           <div>
             <span class="text-xs font-bold text-emerald-300 block">Subir Ficha Técnica (.md / .txt)</span>
-            <span class="text-[11px] text-slate-400">Soporta negritas, listas y símbolos. Puedes subir uno o varios archivos</span>
+            <span class="text-[11px] text-slate-400">Soporta negritas, listas y símbolos. Uno o varios archivos</span>
           </div>
         </label>
       </div>
 
-      <!-- LISTA DE PRODUCTOS CARGADOS EN EL CATÁLOGO -->
       <div class="mb-4">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
@@ -267,7 +389,6 @@
         <div id="catalogList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1 custom-scrollbar"></div>
       </div>
 
-      <!-- EDICIÓN MANUAL DEL INSUMO ACTIVO SELECCIONADO -->
       <div class="border-t border-slate-800 pt-3">
         <h4 class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
           <i data-lucide="edit-3" class="w-3.5 h-3.5 text-cyan-400"></i> Datos Extraídos del Insumo Activo:
@@ -280,7 +401,7 @@
           </div>
 
           <div>
-            <label class="block text-slate-300 font-semibold mb-1">Dolor Frecuente con la Competencia (¿De qué se queja el doctor?):</label>
+            <label class="block text-slate-300 font-semibold mb-1">Dolor Frecuente con la Competencia:</label>
             <input type="text" id="inpProdPain" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
           </div>
 
@@ -308,46 +429,6 @@
         </form>
       </div>
 
-    </div>
-  </div>
-
-  <!-- MODAL: AGREGAR NUEVA OBJECIÓN MANUAL -->
-  <div id="modalNewObjection" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl">
-      <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-        <h3 class="font-bold text-sm text-white flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> Registrar Nueva Objeción
-        </h3>
-        <button onclick="closeModal('modalNewObjection')" class="text-slate-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <form id="newObjForm" onsubmit="saveNewObjection(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Título Corto del Botón:</label>
-          <input type="text" id="inpObjTitle" placeholder="ej: Pide crédito a 60 días" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Tipo Raíz:</label>
-          <input type="text" id="inpObjType" placeholder="ej: Flujo de Caja / Presupuesto" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Lo que dijo el doctor:</label>
-          <input type="text" id="inpObjPhrase" placeholder="ej: 'Yo solo compro con crédito'" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Tu Respuesta de Alivio:</label>
-          <textarea id="inpObjResponse" rows="2" placeholder="Respuesta de impacto inmediato..." required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none"></textarea>
-        </div>
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Cierre Principal sugerido:</label>
-          <input type="text" id="inpObjClosure" placeholder="ej: ¿Hacemos una prueba piloto mínima?" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:border-emerald-500 outline-none">
-        </div>
-        <button type="submit" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition">
-          Guardar en la Bóveda Táctil
-        </button>
-      </form>
     </div>
   </div>
 
@@ -387,14 +468,110 @@
 
   <!-- JAVASCRIPT ENGINE -->
   <script>
-    // --- LAS 10 OBJECIONES ESTRATÉGICAS RAÍZ CON 3 CIERRES ---
+    // --- DATOS DEL FLUJO DE 5 INTERACCIONES INICIALES ---
+    const INITIAL_INTERACTIONS = [
+      {
+        id: 0,
+        title: "Paso 1: Contacto y Permiso",
+        goal: "Validar si tiene 5 minutos o agendar en un momento de respeto",
+        script: `"Hola, Doctora [Apellido], buenos días. Soy [Tu Nombre] de [Tu Empresa]. Vi que mostró interés en nuestra información sobre protocolos de <strong>{PRODUCTO}</strong>. La llamo brevemente, ¿tiene 5 minutos para explicarle cómo vamos a manejar esta conversación o la contacto en un mejor momento?"`,
+        quickObjections: [
+          {
+            label: "Estoy en medio de una consulta",
+            reply: `"Entiendo perfectamente, Doctora. El tiempo con sus pacientes es prioridad y no la quiero interrumpir. ¿Le parece bien si le escribo por WhatsApp a las 5:00 PM para agendar una llamada de 5 minutos cuando ya haya terminado su jornada?"`
+          },
+          {
+            label: "No tengo tiempo ahora, llámeme más tarde",
+            reply: `"Claro que sí. Para no interrumpirla de nuevo en un mal momento y respetar su agenda, ¿qué horario le funciona mejor: mañana a primera hora o por la tarde después de las 4:00 PM?"`
+          },
+          {
+            label: "Estoy muy ocupada",
+            reply: `"Completamente comprensible, Doctora. Precisamente por el volumen de su clínica, ¿le es más cómodo que le comparta un mensaje breve por WhatsApp para que lo revise entre pacientes cuando tenga un respiro?"`
+          }
+        ]
+      },
+      {
+        id: 1,
+        title: "Paso 2: Desarme de Presión",
+        goal: "Eliminar la resistencia inicial y el miedo a que le vendan",
+        script: `"Perfecto, Doctora. Antes de iniciar, le cuento cómo va a ser esto: mi objetivo hoy no es venderle nada. La idea es simplemente revisar si este protocolo de <strong>{PRODUCTO}</strong> tiene sentido real para su clínica. Si vemos que no encaja, no pasa absolutamente nada y quedamos en paz. Para lograrlo, primero necesito entender su situación actual. ¿Le parece justo?"`,
+        quickObjections: [
+          {
+            label: "Si es para venderme algo, no me interesa",
+            reply: `"Lo entiendo, Doctora. Precisamente por eso no asumo que le va a servir. Mi trabajo es filtrar si esto resuelve un problema real en su clínica o si es mejor que no invierta su tiempo. ¿Qué le parece si me da 2 minutos para hacerle un par de preguntas y usted misma decide si vale la pena continuar?"`
+          },
+          {
+            label: "Solo dígame el precio y ya, no tengo tiempo",
+            reply: `"Con mucho gusto le doy el precio al final, Doctora. Pero para no darle una cifra al aire que no refleje la realidad de su operación, necesito hacerle dos preguntas rápidas sobre cómo maneja hoy sus protocolos. ¿Me permite?"`
+          },
+          {
+            label: "Ya tengo proveedor",
+            reply: `"Qué bueno saberlo, eso demuestra que ya conoce el valor de la regeneración. Cuando compara los resultados que obtiene hoy con lo que le prometieron inicialmente, ¿siente que hay alguna brecha o algo que le gustaría mejorar?"`
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Paso 3: Diagnóstico Previo",
+        goal: "Descubrir antecedentes y por qué siente que no le ha funcionado",
+        script: `"Excelente. Entonces, antes de proponerle cualquier cosa, cuénteme: ¿qué ha pasado hasta ahora? Vi que le interesó el tema de <strong>{PRODUCTO}</strong>, ¿qué ha probado en la clínica hasta el momento y por qué siente que no le ha funcionado como esperaba?"`,
+        quickObjections: [
+          {
+            label: "No he probado nada, solo vi el anuncio",
+            reply: `"Perfecto, eso me ayuda mucho. Cuénteme entonces, ¿qué la motivó a detenerse a ver nuestro anuncio? ¿Hay algún desafío actual con sus pacientes o con la rentabilidad de sus tratamientos que le haya llamado la atención?"`
+          },
+          {
+            label: "Todo va bien, solo quería saber cuánto costaba",
+            reply: `"Me alegra escucharlo, Doctora. Generalmente, cuando un médico busca nuevas tecnologías es porque quiere optimizar algo. ¿Está buscando aumentar su ticket promedio, reducir el tiempo de recuperación de sus pacientes o simplemente mantenerse a la vanguardia frente a la competencia?"`
+          }
+        ]
+      },
+      {
+        id: 3,
+        title: "Paso 4: Pincelling & Permiso",
+        goal: "Permiso explícito para tocar temas de ticket promedio y rentabilidad",
+        script: `"Para no darle información genérica que puede encontrar en internet, ¿me permite hacerle un par de preguntas específicas sobre cómo está manejando hoy la retención y el ticket promedio de sus pacientes con <strong>{PRODUCTO}</strong>?"`,
+        quickObjections: [
+          {
+            label: "Mándeme un brochure o PDF por correo y yo lo reviso",
+            reply: `"Se lo envío con mucho gusto al terminar, Doctora. Pero los brochures suelen tener información estándar y su clínica tiene necesidades específicas. Si me permite 3 minutos para entender su caso, le enviaré una propuesta a la medida. ¿Le parece bien?"`
+          },
+          {
+            label: "Tengo mucha desconfianza de estas llamadas",
+            reply: `"Lo entiendo perfectamente, hoy en día llaman de todo. Precisamente por eso mi enfoque es de consultoría, no de venta masiva. ¿Qué le parece si hacemos esto: usted me responde dos preguntas y si siente que no le estoy aportando valor, colgamos y no la vuelvo a contactar?"`
+          }
+        ]
+      },
+      {
+        id: 4,
+        title: "Paso 5: Decisor & Cierre Inicial",
+        goal: "Descubrir si decide sola o con socio antes de la propuesta final",
+        script: `"Doctora, para respetar su tiempo y ser muy directo: si al final de esta charla vemos que el protocolo de <strong>{PRODUCTO}</strong> es exactamente lo que necesita para aumentar su ticket promedio sin complicar su operación, ¿estaría abierta a agendar una sesión de implementación o necesita validarlo con alguien más de su equipo?"`,
+        quickObjections: [
+          {
+            label: "Tengo que hablarlo con mi socio / mi esposo",
+            reply: `"Tiene todo el sentido, Doctora. Las decisiones estratégicas se toman en equipo. ¿Qué le parece si agendamos una videollamada de 10 minutos mañana con ambos? Así resolvemos sus dudas técnicas y sus dudas financieras al mismo tiempo, sin que usted tenga que hacer de mensajera."`
+          },
+          {
+            label: "Yo no tomo decisiones así no más, reviso números",
+            reply: `"Por supuesto, los números deben cuadrar. Mi propuesta incluye un análisis de retorno de inversión (ROI) basado en su flujo actual de pacientes. ¿Le parece si le envío ese análisis hoy y agendamos 10 minutos el jueves para revisarlo juntos?"`
+          }
+        ]
+      }
+    ];
+
+    // --- LAS 10 OBJECIONES ESTRATÉGICAS CON MÚLTIPLES ÁNGULOS ---
     const STRATEGIC_10_OBJECTIONS = [
       {
         id: "obj_stock",
         tag: "📦 'Tengo mucho stock de producto'",
         type: "Inercia / Estado Actual (Falsa capacidad)",
         phrase: "Tengo mucho stock de producto.",
-        response: "Entiendo, tener stock es buena señal de movimiento. Pero justo por eso te contacto: muchos clientes descubrieron que parte de ese inventario es 'capital durmiendo'. No vengo a que reemplaces tu stock hoy, sino a mostrarte cómo mejorar tu margen y rotación en tu próxima reposición de {PRODUCTO}.",
+        variations: [
+          "Entiendo, tener stock es buena señal de movimiento. Pero justo por eso te contacto: muchos clientes descubrieron que parte de ese inventario es 'capital durmiendo'. No vengo a que reemplaces tu stock hoy, sino a mostrarte cómo mejorar tu margen y rotación en tu próxima reposición de {PRODUCTO}.",
+          "Doctor/a, tener stock es natural. Mi objetivo no es saturarle la bodega, sino contrastar el costo por tratamiento: si su insumo actual le deja menos margen que {PRODUCTO}, cada semana que pasa su clínica deja de percibir {MARGEN_NETO} por paciente.",
+          "Totalmente de acuerdo, sería imprudente pedirle que compre volumen hoy. La verdadera pregunta es: cuando agote ese lote, ¿seguirá pagando el mismo sobreprecio o le gustaría tener ya validada una alternativa que le entrega {ALIVIO_CLAVE}?"
+        ],
         closures: [
           { name: "Prueba Piloto", pitch: "Para que no arriesgues nada, ¿te parece si te envío un pedido mínimo de prueba solo para comparar rotación y calidad con datos reales?" },
           { name: "Análisis de Datos", pitch: "¿Qué te parece si revisamos juntos el margen de tus 3 productos de mayor salida? Si no te ahorro dinero, no avanzamos." },
@@ -406,7 +583,11 @@
         tag: "🛡️ 'Ya tengo proveedores muy buenos'",
         type: "Lealtad / Zona de Confort",
         phrase: "Ya tengo proveedores muy buenos de alta calidad.",
-        response: "Me alegra escucharlo, habla bien de tus estándares. Precisamente por eso no vengo a reemplazarlos, sino a ser tu 'socio de respaldo'. Tener una segunda opción en {PRODUCTO} te mantiene con poder de negociación en precios y tiempos con tu proveedor actual.",
+        variations: [
+          "Me alegra escucharlo, habla bien de tus estándares. Precisamente por eso no vengo a reemplazarlos, sino a ser tu 'socio de respaldo'. Tener una segunda opción en {PRODUCTO} te mantiene con poder de negociación en precios y tiempos con tu proveedor actual.",
+          "Excelente Doctor/a. No le propongo romper relaciones con ellos. Lo que hacen clínicas top es diversificar: mantienen su marca de cabecera y usan {PRODUCTO} para captar pacientes que buscan {ALIVIO_CLAVE} con rentabilidad de {MARGEN_NETO}.",
+          "Respeto mucho esa lealtad profesional. Mi única inquietud: si su proveedor habitual llega a tener un quiebre de stock de 48 horas, ¿tiene hoy un plan B homologado que no le haga cancelar citas?"
+        ],
         closures: [
           { name: "Benchmarking", pitch: "Para que tengas esa tranquilidad, ¿te parece justo recibir una cotización de referencia de tus 3 productos de mayor rotación? Así tendrás un termómetro para negociar mejor." },
           { name: "Solución de Dolor", pitch: "¿Te parece bien si te envío una muestra del producto que más te genere dolor de cabeza con tu proveedor actual, sin ningún compromiso?" },
@@ -418,7 +599,11 @@
         tag: "⏱️ 'En este momento no me interesa'",
         type: "Prioridad / Timing (Objeción Humo)",
         phrase: "En este momento no me interesa.",
-        response: "Lo aprecio, la honestidad ahorra tiempo. Normalmente, cuando escucho eso, es porque o no logré explicar el impacto en tu rentabilidad con {PRODUCTO}, o simplemente no es prioridad este trimestre. ¿Es un tema de timing o de que {ALIVIO_CLAVE} no es relevante para ti ahora?",
+        variations: [
+          "Lo aprecio, la honestidad ahorra tiempo. Normalmente, cuando escucho eso, es porque o no logré explicar el impacto en tu rentabilidad con {PRODUCTO}, o simplemente no es prioridad este trimestre. ¿Es un tema de timing o de que {ALIVIO_CLAVE} no es relevante para ti ahora?",
+          "Completamente válido. Cuando un médico me dice eso suele ser porque ya está saturado de ofertas comerciales vacías. Si le garantizo que esto le genera {MARGEN_NETO} limpios por sesión, ¿sigue sin ser prioridad o es falta de tiempo para evaluarlo?",
+          "Entendido, Doctor/a. No pretendo insistir. Solo por calibrar mi trabajo: ¿no le interesa el insumo o no le interesa evaluar cómo optimizar el ticket promedio de su consulta?"
+        ],
         closures: [
           { name: "Agenda Futura", pitch: "Entiendo el timing. ¿Te parece bien si te agendo una llamada de 3 minutos dentro de 90 días, justo cuando estés planeando el próximo ciclo?" },
           { name: "Calibración", pitch: "Para no ser una molestia, ¿qué tendría que cambiar en nuestra propuesta para que esto sea una opción viable para ti en el futuro?" },
@@ -430,7 +615,11 @@
         tag: "💸 'Hice compra grande / Sin liquidez'",
         type: "Presupuesto / Flujo de Caja",
         phrase: "Ayer hice una compra grande y estoy sin liquidez.",
-        response: "Te entiendo y felicito esa inversión; mover el negocio en grande genera crecimiento. No vengo a ser un gasto más, sino una herramienta para ayudarte a recuperar esa liquidez más rápido con {PRODUCTO}. Respeto totalmente tus ciclos de flujo de caja.",
+        variations: [
+          "Te entiendo y felicito esa inversión; mover el negocio en grande genera crecimiento. No vengo a ser un gasto más, sino una herramienta para ayudarte a recuperar esa liquidez más rápido con {PRODUCTO}. Respeto totalmente tus ciclos de flujo de caja.",
+          "Doctor/a, la liquidez es sagrada. Precisamente por eso nuestro modelo con {PRODUCTO} busca que con solo 3 pacientes usted recupere la inversión completa y genere {MARGEN_NETO} líquidos por sesión.",
+          "Entiendo perfectamente. No le pido desembolsar capital hoy. Mi propuesta es que analicemos el retorno proyectado para cuando su flujo se estabilice en las próximas semanas."
+        ],
         closures: [
           { name: "Agenda Programada", pitch: "No tiene sentido forzarlo hoy. Sé que los ciclos de recuperación son de 30 a 60 días. ¿Te parece si agendamos una llamada para una fecha específica para evaluarlo con el flujo adecuado?" },
           { name: "Financiamiento", pitch: "¿Te interesaría ver un modelo de pago escalonado que se pague solo con las ganancias que el mismo insumo te genere por sesión?" },
@@ -442,7 +631,11 @@
         tag: "👥 'Debo consultarlo con mi socio'",
         type: "Autoridad / Mapa de Decisiones",
         phrase: "Debo consultarlo con mi socio.",
-        response: "Perfecto, las mejores decisiones son en equipo. Para darte la mejor munición para esa charla sobre {PRODUCTO}: más allá de ti, ¿cuál es el criterio principal que tu socio evaluará? ¿ROI, riesgo o precio?",
+        variations: [
+          "Perfecto, las mejores decisiones son en equipo. Para darte la mejor munición para esa charla sobre {PRODUCTO}: más allá de ti, ¿cuál es el criterio principal que tu socio evaluará? ¿ROI, riesgo o precio?",
+          "Excelente, dos cabezas piensan mejor. Si su socio le pregunta por qué evaluar {PRODUCTO} teniendo otras marcas, ¿qué le respondería usted con lo que hemos visto de {ALIVIO_CLAVE}?",
+          "Totalmente respetable. Para evitar que usted tenga que hacer el trabajo de explicar la parte técnica y financiera, ¿le ayudaría tener un resumen de números listo para compartir?"
+        ],
         closures: [
           { name: "Herramienta de Venta", pitch: "Hagamos un trato: te preparo un resumen ejecutivo de una página enfocado exclusivamente en ese criterio. ¿Te parece bien?" },
           { name: "Triple Acuerdo", pitch: "Si a tu socio le surgen dudas técnicas, ¿estás de acuerdo en que nos reunamos los tres por 10 minutos en videollamada para resolverlas al instante?" },
@@ -454,7 +647,11 @@
         tag: "🏷️ 'Insumo muy caro / Tarifa alta'",
         type: "Precio / Percepción de Valor",
         phrase: "El equipo/insumo es muy caro, no sé si mis pacientes pagarán esa tarifa.",
-        response: "Te entiendo, doctor/a. Pero las clínicas más rentables no compran por precio, sino por margen por sesión. Al posicionar {PRODUCTO} como 'premium' y no 'commodity', atraes al paciente que valora resultados seguros con {ALIVIO_CLAVE}, no descuentos.",
+        variations: [
+          "Te entiendo, doctor/a. Pero las clínicas más rentables no compran por precio, sino por margen por sesión. Al posicionar {PRODUCTO} como 'premium' y no 'commodity', atraes al paciente que valora resultados seguros con {ALIVIO_CLAVE}, no descuentos.",
+          "Doctor/a, lo barato sale carísimo en complicaciones y retoques gratuitos. Nuestro insumo cuesta {COSTO}, pero le permite cobrar con solvencia {PRECIO_SESION}, embolsándose {MARGEN_NETO} libres.",
+          "Si solo miramos el costo inicial, parece alto. Pero si vemos que rinde más y fideliza al paciente por {ALIVIO_CLAVE}, el costo por resultado es sustancialmente menor que la competencia."
+        ],
         closures: [
           { name: "Viabilidad Financiera", pitch: "Permíteme 10 minutos para hacerte un modelo de rentabilidad con tus números reales de pacientes. Si los números no te convencen, no avanzamos. ¿Jueves a las 10 AM?" },
           { name: "Prueba Social Limitada", pitch: "¿Qué te parece si hacemos una prueba piloto con solo 3 pacientes VIP para validar que sí están dispuestos a pagar esa tarifa?" },
@@ -466,7 +663,11 @@
         tag: "🏅 'Solo trabajo con marca líder'",
         type: "Confianza / Aversión al Riesgo",
         phrase: "No conozco esa marca, yo solo trabajo con marca líder por seguridad y respaldo.",
-        response: "Lo respeto al 100%, priorizar la seguridad es admirable. No venimos a reemplazar a los gigantes, sino a ofrecer la misma calidad registrada, pero con un soporte clínico personalizado y rápido que las marcas masivas ya no pueden dar para {PRODUCTO}.",
+        variations: [
+          "Lo respeto al 100%, priorizar la seguridad es admirable. No venimos a reemplazar a los gigantes, sino a ofrecer la misma calidad registrada, pero con un soporte clínico personalizado y rápido que las marcas masivas ya no pueden dar para {PRODUCTO}.",
+          "Doctor/a, las marcas líderes son excelentes, pero usted paga un 40% de sobreprecio solo por el logo publicitario. Con nosotros obtiene {ALIVIO_CLAVE} y certificaciones completas con {MARGEN_NETO} de margen directo para usted.",
+          "Es la postura más sensata para proteger su reputación médica. Por eso no le pido que nos crea a ciegas: le comparto los estudios clínicos y certificaciones para que usted mismo evalúe la pureza molecular."
+        ],
         closures: [
           { name: "Prueba Social Directa", pitch: "Para que evalúes el respaldo real, ¿qué te parece si te conecto 5 minutos con un médico de tu especialidad que tenía la misma duda y hoy representa el 30% de su facturación con nosotros?" },
           { name: "Evidencia y Registros", pitch: "Te envío nuestro dossier de registros sanitarios y estudios clínicos de {PRODUCTO}. ¿Podemos revisarlo juntos 5 minutos el viernes?" },
@@ -478,7 +679,11 @@
         tag: "⏳ 'Equipo saturado / Sin tiempo'",
         type: "Operativo / Fricción de Protocolo",
         phrase: "Mi equipo ya está saturado, no tenemos tiempo de capacitar en un nuevo protocolo.",
-        response: "Es el dolor número uno en clínicas en crecimiento. Por eso no solo vendemos {PRODUCTO}. Incluimos capacitación in-situ en los horarios que tú definas, hasta que tu equipo esté 100% seguro. Nosotros absorbemos la fricción, no tú.",
+        variations: [
+          "Es el dolor número uno en clínicas en crecimiento. Por eso no solo vendemos {PRODUCTO}. Incluimos capacitación in-situ en los horarios que tú definas, hasta que tu equipo esté 100% seguro. Nosotros absorbemos la fricción, no tú.",
+          "Comprendo la carga de su personal, Doctor/a. Por eso el protocolo de {PRODUCTO} está diseñado para aplicarse en menos de 20 minutos con una curva de aprendizaje de apenas una sesión clínica.",
+          "Justamente por estar saturados necesitan protocolos de mayor ticket: si con menos pacientes generan el mismo o más beneficio, el equipo trabaja con menos estrés operativo."
+        ],
         closures: [
           { name: "Eliminación de Riesgo", pitch: "Si me comprometo por escrito a capacitar en fin de semana o antes de abrir, sin afectar tu agenda, ¿estarías abierto a una demo práctica de 20 minutos la próxima semana?" },
           { name: "Micro-Compromiso", pitch: "¿Te parece si te envío un video-protocolo de 3 minutos para que tu equipo lo vea a su ritmo y me digas qué opinan?" },
@@ -490,7 +695,11 @@
         tag: "🏬 'Hay 4 clínicas ofreciendo lo mismo'",
         type: "Competencia / Diferenciación",
         phrase: "Ya hay 4 clínicas en mi zona ofreciendo lo mismo, el mercado está saturado.",
-        response: "Tienes razón, hay mucha oferta, pero el mercado está hambriento de experiencias diferenciadas. Si todos ofrecen lo mismo, compites por precio. Nuestra propuesta es que uses {PRODUCTO} como tu protocolo exclusivo para diferenciarte y proteger tu marca.",
+        variations: [
+          "Tienes razón, hay mucha oferta, pero el mercado está hambriento de experiencias diferenciadas. Si todos ofrecen lo mismo, compites por precio. Nuestra propuesta es que uses {PRODUCTO} como tu protocolo exclusivo para diferenciarte y proteger tu marca.",
+          "Doctor/a, cuando todos ofrecen lo básico, quien introduce {ALIVIO_CLAVE} se queda con el segmento de pacientes de mayor poder adquisitivo. No compita en la guerra del descuento.",
+          "Esa saturación es su mayor oportunidad: si ellos usan las marcas de siempre con resultados estándar, usted puede posicionar un tratamiento de vanguardia regenerativa que nadie más tiene cerca."
+        ],
         closures: [
           { name: "Estrategia de Valor", pitch: "Si te muestro cómo empaquetar este servicio como un 'protocolo exclusivo firmado por ti' para cobrar un 20% más, ¿merece la pena invertir 15 minutos en revisar esa estrategia?" },
           { name: "Inteligencia Comercial", pitch: "Te envío un análisis rápido de cómo tus 3 competidores cercanos están posicionando este servicio y el hueco que puedes aprovechar. ¿Lo revisamos el martes?" },
@@ -502,7 +711,11 @@
         tag: "📜 'Tengo contrato / leasing vigente'",
         type: "Legal / Contractual",
         phrase: "Tengo un contrato de leasing o exclusividad vigente con mi distribuidor actual.",
-        response: "Lo respeto al pie de la letra; cumplir contratos habla muy bien de ti. No quiero que rompas nada. Mi objetivo es asegurarme de que seas el primero en la fila cuando ese ciclo termine, o cubrir ese nicho que tu contrato actual no alcanza con {PRODUCTO}.",
+        variations: [
+          "Lo respeto al pie de la letra; cumplir contratos habla muy bien de ti. No quiero que rompas nada. Mi objetivo es asegurarme de que seas el primero en la fila cuando ese ciclo termine, o cubrir ese nicho que tu contrato actual no alcanza con {PRODUCTO}.",
+          "Excelente profesionalismo, Doctor/a. No pretendemos interferir en sus acuerdos vigentes. Simplemente queremos ser su alternativa validada para líneas complementarias donde su contrato no le exija exclusividad.",
+          "Entendido. Los contratos tienen fecha de caducidad y las clínicas inteligentes evalúan proveedores 3 meses antes para tener apalancamiento de negociación."
+        ],
         closures: [
           { name: "Agenda Futura", pitch: "¿En qué mes exacto vence tu contrato? Perfecto. Te propongo agendar una llamada de 5 minutos un mes antes de esa fecha para tener todo listo." },
           { name: "Nutrición de Bajo Fricción", pitch: "Mientras tanto, ¿te parece bien si te envío cada trimestre un solo caso de éxito breve, solo para que veas la evolución del mercado sin presión?" },
@@ -513,6 +726,15 @@
 
     const DEFAULT_CATALOG = [
       {
+        id: "prod_exosomas",
+        name: "Protocolo Regenerativo de Exosomas Liofilizados",
+        pain: "lenta cicatrización, quejas post-peeling y falta de diferenciación clínica",
+        relief: "regeneración celular acelerada en 48h con factores de crecimiento ultrapuros",
+        cost: 60,
+        price: 250,
+        fileName: "exosomas.md"
+      },
+      {
         id: "prod_1",
         name: "Ácido Hialurónico Sub-Q Reticulado Ultra-3",
         pain: "desabastecimiento con el laboratorio y viales que generan nódulos",
@@ -520,15 +742,6 @@
         cost: 42,
         price: 190,
         fileName: "acido-hialuronico.md"
-      },
-      {
-        id: "prod_2",
-        name: "Toxina Botulínica Tipo A 100 UI",
-        pain: "pérdida rápida de efecto a los 2 meses y reconstitución inestable",
-        relief: "durabilidad clínica de 5 meses con complejo proteico al 99.8% puro",
-        cost: 65,
-        price: 240,
-        fileName: "toxina-botulinica.md"
       }
     ];
 
@@ -540,19 +753,17 @@
       { id: 4, tag: "Fase 4", name: "Cierre y Certeza", goal: "Liderar con certeza el siguiente paso operativo" }
     ];
 
-    // --- VARIABLES DE ESTADO Y MIGRACIÓN ---
+    // --- VARIABLES DE ESTADO ---
     let catalog = JSON.parse(localStorage.getItem('app_seller_catalog')) || DEFAULT_CATALOG;
     let activeProductId = localStorage.getItem('app_seller_active_id') || catalog[0].id;
-    
-    // Migración automática a las 10 objeciones estratégicas versión 2.0
-    let objections = JSON.parse(localStorage.getItem('app_seller_objections_v2'));
-    if (!objections || objections.length < 10) {
-      objections = STRATEGIC_10_OBJECTIONS;
-      localStorage.setItem('app_seller_objections_v2', JSON.stringify(objections));
-    }
+    let objections = JSON.parse(localStorage.getItem('app_seller_objections_v3')) || STRATEGIC_10_OBJECTIONS;
 
+    let currentMainView = 'interactions'; // 'interactions' | 'pipeline'
+    let currentInterIdx = 0;
     let currentPhase = 0;
     let currentMethod = 'reverse';
+    let currentActiveModalObj = null;
+    let currentVariationIdx = 0;
 
     function getActiveProduct() {
       return catalog.find(p => p.id === activeProductId) || catalog[0];
@@ -578,7 +789,458 @@
       };
     }
 
-    // --- PARSER INTELIGENTE DE MARKDOWN ---
+    // --- CONTROL DE VISTAS PRINCIPALES ---
+    function setMainView(view) {
+      currentMainView = view;
+      const btnInter = document.getElementById('tabBtnInteractions');
+      const btnPipe = document.getElementById('tabBtnPipeline');
+      const viewInter = document.getElementById('viewInteractions');
+      const viewPipe = document.getElementById('viewPipeline');
+      const pipeCont = document.getElementById('pipelineContainer');
+      const metCont = document.getElementById('methodologyContainer');
+
+      if (view === 'interactions') {
+        btnInter.className = "px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+        btnPipe.className = "px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent";
+        viewInter.classList.remove('hidden');
+        viewPipe.classList.add('hidden');
+        pipeCont.classList.add('hidden');
+        metCont.classList.add('hidden');
+        renderInteraction();
+      } else {
+        btnPipe.className = "px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+        btnInter.className = "px-3 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white border border-transparent";
+        viewPipe.classList.remove('hidden');
+        viewInter.classList.add('hidden');
+        pipeCont.classList.remove('hidden');
+        metCont.classList.remove('hidden');
+        renderPipeline();
+        renderCard();
+      }
+      lucide.createIcons();
+    }
+
+    // --- RENDER INTERACCIONES INICIALES ---
+    function renderInteractionTabs() {
+      const nav = document.getElementById('interactionNav');
+      nav.innerHTML = '';
+      INITIAL_INTERACTIONS.forEach((inter, idx) => {
+        const isActive = idx === currentInterIdx;
+        const btn = document.createElement('button');
+        btn.onclick = () => {
+          currentInterIdx = idx;
+          renderInteraction();
+        };
+        btn.className = `flex-1 py-1.5 px-2 rounded-lg text-center transition text-[11px] font-semibold truncate border ${
+          isActive 
+            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' 
+            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+        }`;
+        btn.textContent = `Paso ${idx + 1}`;
+        nav.appendChild(btn);
+      });
+    }
+
+    function renderInteraction() {
+      renderInteractionTabs();
+      const inter = INITIAL_INTERACTIONS[currentInterIdx];
+      const prod = getActiveProduct();
+
+      document.getElementById('interStepBadge').textContent = `INTERACCIÓN ${inter.id + 1}`;
+      document.getElementById('interStepGoal').textContent = `🎯 ${inter.goal}`;
+      
+      let scriptParsed = inter.script.replace(/{PRODUCTO}/g, prod.name);
+      document.getElementById('interScript').innerHTML = scriptParsed;
+
+      // Renderizar botones de objeciones rápidas de este paso
+      const btnBox = document.getElementById('interQuickObjButtons');
+      btnBox.innerHTML = '';
+      document.getElementById('interQuickResponseBox').classList.add('hidden');
+
+      inter.quickObjections.forEach((obj, idx) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => showQuickInteractionResponse(obj.label, obj.reply);
+        btn.className = "px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-rose-500/40 rounded-lg text-[11px] text-slate-300 hover:text-rose-200 transition flex items-center gap-1.5";
+        btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> ${obj.label}`;
+        btnBox.appendChild(btn);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuickInteractionResponse(label, reply) {
+      const box = document.getElementById('interQuickResponseBox');
+      const text = document.getElementById('interQuickResponseText');
+      const lbl = document.getElementById('interQuickResponseLabel');
+      
+      const prod = getActiveProduct();
+      lbl.textContent = `✅ Respuesta si dice: "${label}":`;
+      text.innerHTML = reply.replace(/{PRODUCTO}/g, `<strong>${prod.name}</strong>`);
+      box.classList.remove('hidden');
+    }
+
+    function nextInteraction() {
+      if (currentInterIdx < INITIAL_INTERACTIONS.length - 1) {
+        currentInterIdx++;
+        renderInteraction();
+      }
+    }
+
+    function prevInteraction() {
+      if (currentInterIdx > 0) {
+        currentInterIdx--;
+        renderInteraction();
+      }
+    }
+
+    // --- BÓVEDA DE OBJECIONES AVANZADA ---
+    function renderObjections() {
+      const list = document.getElementById('objectionsList');
+      list.innerHTML = '';
+
+      objections.forEach((obj) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => triggerObjection(obj.id);
+        btn.className = "w-full text-left p-2 bg-slate-950/70 hover:bg-slate-800/90 border border-slate-800/80 hover:border-emerald-500/40 rounded-xl text-xs text-slate-300 hover:text-emerald-200 transition flex items-center justify-between group";
+        btn.innerHTML = `
+          <div class="truncate mr-1">
+            <span class="font-medium truncate block">${obj.tag}</span>
+            <span class="text-[10px] text-slate-500 block truncate group-hover:text-slate-400">${obj.type || 'Estratégica'}</span>
+          </div>
+          <i data-lucide="crosshair" class="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 transition flex-shrink-0 ml-1"></i>
+        `;
+        list.appendChild(btn);
+      });
+
+      lucide.createIcons();
+    }
+
+    function triggerObjection(id) {
+      currentActiveModalObj = objections.find(o => o.id === id);
+      if (!currentActiveModalObj) return;
+
+      currentVariationIdx = 0;
+      updateObjectionModalContent();
+      openModal('modalObjectionResponse');
+    }
+
+    // Actualiza / Genera otra respuesta cíclica en vivo
+    function cycleObjectionVariation() {
+      if (!currentActiveModalObj) return;
+      const vars = currentActiveModalObj.variations || [currentActiveModalObj.response];
+      currentVariationIdx = (currentVariationIdx + 1) % vars.length;
+      updateObjectionModalContent();
+    }
+
+    function updateObjectionModalContent() {
+      const obj = currentActiveModalObj;
+      const f = getFinancials();
+      const prod = getActiveProduct();
+
+      const vars = obj.variations && obj.variations.length > 0 
+        ? obj.variations 
+        : [obj.response];
+
+      const rawResponse = vars[currentVariationIdx % vars.length];
+
+      let resp = rawResponse
+        .replace(/{PRODUCTO}/g, `<strong>${prod.name}</strong>`)
+        .replace(/{DOLOR_TIPICO}/g, `<em>${prod.pain}</em>`)
+        .replace(/{ALIVIO_CLAVE}/g, `<strong>${prod.relief}</strong>`)
+        .replace(/{COSTO}/g, `<strong>${f.cost}</strong>`)
+        .replace(/{PRECIO_SESION}/g, `<strong>${f.price}</strong>`)
+        .replace(/{MARGEN_NETO}/g, `<strong>${f.netMarginStr}</strong>`);
+
+      const angles = ["Ángulo 1: ROI & Valor", "Ángulo 2: Desarme Clínico", "Ángulo 3: Reverse Selling"];
+      document.getElementById('objVariationBadge').textContent = angles[currentVariationIdx % angles.length];
+
+      document.getElementById('objModalType').textContent = `TIPO RAÍZ: ${obj.type || 'Estratégica'}`;
+      document.getElementById('objModalTitle').textContent = obj.tag;
+      document.getElementById('objModalUserSaid').textContent = `"${obj.phrase}"`;
+      document.getElementById('objModalResponse').innerHTML = resp;
+
+      // Renderizar cierres
+      const closuresContainer = document.getElementById('objModalClosures');
+      closuresContainer.innerHTML = '';
+
+      const closuresList = obj.closures || [
+        { name: "Cierre Asuntivo", pitch: "¿Procedemos con la orden inicial de prueba?" }
+      ];
+
+      const colors = [
+        { badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40", border: "hover:border-emerald-500" },
+        { badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40", border: "hover:border-cyan-500" },
+        { badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40", border: "hover:border-indigo-500" }
+      ];
+
+      closuresList.forEach((c, idx) => {
+        const theme = colors[idx % colors.length];
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-xl bg-slate-950 border border-slate-800 ${theme.border} transition flex flex-col justify-between`;
+        card.innerHTML = `
+          <div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider block mb-1.5 w-fit ${theme.badge}">
+              Cierre ${idx + 1}: ${c.name}
+            </span>
+            <p class="text-xs text-slate-200 leading-snug font-medium italic">
+              "${c.pitch}"
+            </p>
+          </div>
+          <button onclick="copyToClipboard('${c.pitch.replace(/'/g, "\\'")}')" class="mt-2 text-[10px] text-slate-400 hover:text-emerald-300 flex items-center gap-1 font-semibold pt-1 border-t border-slate-900">
+            <i data-lucide="copy" class="w-3 h-3"></i> Copiar frase
+          </button>
+        `;
+        closuresContainer.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // --- AUTO-GENERAR FÓRMULA DE OBJECIÓN ---
+    function autoGenerateFormula() {
+      const phrase = document.getElementById('inpObjPhrase').value.trim();
+      if (!phrase) return alert("Por favor escribe primero lo que dijo el doctor.");
+
+      const prod = getActiveProduct();
+      const f = getFinancials();
+
+      // Análisis simple de intención
+      let type = "Objeción de Valor y Seguridad";
+      let shortTitle = phrase.substring(0, 24);
+
+      if (/caro|precio|dinero|tarifa|costo/i.test(phrase)) {
+        type = "Precio / Percepción de Retorno";
+        shortTitle = "Precio / Muy caro";
+      } else if (/tiempo|ocupado|consulta|tarde/i.test(phrase)) {
+        type = "Timing / Prioridad";
+        shortTitle = "Falta de tiempo";
+      } else if (/proveedor|marca|laboratorio|trabajo con/i.test(phrase)) {
+        type = "Lealtad / Respaldo Actual";
+        shortTitle = "Ya tiene proveedor";
+      } else if (/socio|esposo|equipo|consultar/i.test(phrase)) {
+        type = "Autoridad / Decisor Múltiple";
+        shortTitle = "Consultar con socio";
+      }
+
+      document.getElementById('inpObjTitle').value = shortTitle;
+      document.getElementById('inpObjType').value = type;
+
+      // Redacción con la fórmula ganadora
+      document.getElementById('inpObjResponse').value = 
+        `Doctor/a, comprendo su punto perfectamente. La mayoría de especialistas tenían exactamente esa inquietud antes de comprobar cómo ${prod.name} resuelve ${prod.pain}. Nuestro enfoque no es sumarle un problema, sino asegurarle ${prod.relief} con un margen neto de ${f.netMarginStr} por paciente.`;
+
+      document.getElementById('inpObjClosure1').value = 
+        `¿Le parece si hacemos un pedido mínimo de prueba clínica con 3 viales para que usted mismo evalúe los resultados en pacientes reales?`;
+      document.getElementById('inpObjClosure2').value = 
+        `Si le demuestro con números cómo recuperar la inversión en los primeros 5 pacientes, ¿merecería la pena revisarlo 10 minutos el jueves?`;
+      document.getElementById('inpObjClosure3').value = 
+        `¿Qué le parece si le agendo una llamada breve de 5 minutos la próxima semana cuando tenga un espacio más holgado en consulta?`;
+
+      alert("✨ ¡Fórmula estratégica aplicada! Campos completados con datos de tu insumo.");
+    }
+
+    function saveNewObjection(e) {
+      e.preventDefault();
+      const title = document.getElementById('inpObjTitle').value.trim();
+      const type = document.getElementById('inpObjType').value.trim();
+      const phrase = document.getElementById('inpObjPhrase').value.trim();
+      const response = document.getElementById('inpObjResponse').value.trim();
+      const c1 = document.getElementById('inpObjClosure1').value.trim();
+      const c2 = document.getElementById('inpObjClosure2').value.trim();
+      const c3 = document.getElementById('inpObjClosure3').value.trim();
+
+      const newObj = {
+        id: "obj_" + Date.now(),
+        tag: "⚡ " + title,
+        type: type,
+        phrase: phrase,
+        response: response,
+        variations: [response],
+        closures: [
+          { name: "Prueba Piloto", pitch: c1 },
+          { name: "Análisis ROI", pitch: c2 },
+          { name: "Agenda / Respaldo", pitch: c3 }
+        ]
+      };
+
+      objections.unshift(newObj);
+      localStorage.setItem('app_seller_objections_v3', JSON.stringify(objections));
+      
+      document.getElementById('newObjForm').reset();
+      closeModal('modalNewObjection');
+      renderObjections();
+      alert("✅ ¡Nueva objeción guardada y lista en el cajón!");
+    }
+
+    // --- PIPELINE & GUIÓN ADAPTADO ---
+    function renderPipeline() {
+      const nav = document.getElementById('pipelineNav');
+      nav.innerHTML = '';
+      PHASES_INFO.forEach((p, idx) => {
+        const isActive = idx === currentPhase;
+        const btn = document.createElement('button');
+        btn.onclick = () => setPhase(idx);
+        btn.className = `py-2 px-1 rounded-xl text-center transition flex flex-col items-center justify-center border text-[11px] font-semibold leading-tight ${
+          isActive 
+            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm' 
+            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+        }`;
+        btn.innerHTML = `<span class="text-[9px] uppercase tracking-wider opacity-60">${p.tag}</span><span class="truncate w-full">${p.name}</span>`;
+        nav.appendChild(btn);
+      });
+    }
+
+    function generateScript(phaseIdx, method) {
+      const f = getFinancials();
+      const prod = getActiveProduct();
+      const pName = prod.name;
+      const pPain = prod.pain;
+      const pRelief = prod.relief;
+
+      const scripts = {
+        reverse: [
+          `"Doctor, sé que no esperaba mi llamada y probablemente está por entrar a consulta. Le robo 20 segundos exactos: le llamo porque estamos abasteciendo a clínicas de la zona con <strong>${pName}</strong> para erradicar el problema de <em>${pPain}</em>. Si esto no es un problema prioritario en su cabina hoy, dígamelo con confianza y le cuelgo ahora mismo."`,
+          `"Doctor, antes de mostrarle nada de <strong>${pName}</strong>: la mayoría de cirujanos me comentan que están frustrados por <em>${pPain}</em>. En su caso particular, ¿ha tenido algún inconveniente similar recientemente o con su proveedor habitual todo marcha al 100%?"`,
+          `"Doctor, déjeme ver si le escuché bien: usted me dice que lo que más le preocupa es <em>${pPain}</em> y que le gustaría ganar más por sesión. Si hubiera una manera comprobada de tener <strong>${pRelief}</strong> dejándole <strong>${f.netMarginStr} netos por paciente</strong>, ¿estaría dispuesto a revisar un lote inicial o preferiría dejarlo pasar?"`,
+          `"Mire, no somos la marca más barata del mercado. Cada vial le cuesta <strong>${f.cost}</strong>. Pero aquí está el alivio: le garantizamos <strong>${pRelief}</strong>. Mientras otros le cobran casi lo mismo sin certificados, usted cobra <strong>${f.price}</strong> y se queda con <strong>${f.netMarginStr} limpios en 20 minutos</strong>. ¿Tiene sentido tener una segunda opción así de rentable en cabina?"`,
+          `"Doctor, para comprobar esto en su propia clínica sin riesgo: podemos prepararle el paquete clínico de 5 viales o el pack de 10 con envío bonificado. ¿Cuál prefiere que le despachemos para que le llegue este jueves antes de mediodía?"`
+        ],
+        nepq: [
+          `"Hola Doctor, le habla [Tu Nombre] de la línea médica. Sé que está ocupado. La razón puntual de mi llamada es que estamos ayudando a especialistas que aplican <strong>${pName}</strong> y están hartos de <em>${pPain}</em>. ¿Estaría abierto a ver cómo otros colegas lo resolvieron o prefiere que no le quite tiempo?"`,
+          `"Doctor, cuando aplica tratamientos con su línea habitual... ¿qué tan seguido se topa con <em>${pPain}</em>? Y cuando eso pasa, ¿cuánto tiempo o dinero le cuesta corregirlo con el paciente?"`,
+          `"Entiendo... entonces si no resuelve el tema de <em>${pPain}</em>, seguirá perdiendo margen y arriesgando citas. Supongamos que tuviéramos un insumo con <strong>${pRelief}</strong> que le garantice <strong>${f.netMarginStr}</strong> por consulta... ¿qué impacto tendría eso en su facturación mensual?"`,
+          `"Exactamente. El alivio real de <strong>${pName}</strong> no es solo técnico con <strong>${pRelief}</strong>, sino que le da certidumbre: 5 pacientes a la semana le representan <strong>${f.weeklyFive}</strong> netos en su bolsillo. La objeción que algunos tienen al inicio es la marca, pero al ver los registros sanitarios se dan cuenta de la seguridad."`,
+          `"Doctor, basándonos en lo que me dijo, lo más prudente es que evalúe 5 unidades de prueba. Le genero su orden con factura, le llega el jueves y el viernes coordinamos el protocolo de aplicación. ¿Le parece el paso lógico a seguir?"`
+        ],
+        consultive: [
+          `"Buenas tardes Doctor. Le llamo directamente para validar si su consultorio califica para el programa de optimización de margen en <strong>${pName}</strong>. ¿Tiene un minuto para contrastar sus números actuales de rentabilidad?"`,
+          `"Doctor, haciendo números claros: actualmente, ¿cuánto le cuesta el insumo por paciente y cuánto margen neto le está quedando libre tras costos operativos? ¿Siente que <em>${pPain}</em> le está mermando su ganancia real?"`,
+          `"De acuerdo a lo que me describe, tiene una fuga de rentabilidad por <em>${pPain}</em>. Si le muestro cómo <strong>${pName}</strong> le entrega <strong>${pRelief}</strong> con un margen garantizado del <strong>${f.marginPctStr}</strong>, ¿podríamos agendar su primer despacho hoy?"`,
+          `"El análisis financiero es sencillo: costo de <strong>${f.cost}</strong>, usted cobra <strong>${f.price}</strong>, ganancia de <strong>${f.netMarginStr} por aplicación</strong>. Con 20 pacientes al mes, su clínica genera <strong>${f.monthlyTwenty} adicionales</strong> sin aumentar sus costos fijos."`,
+          `"Doctor, procedamos a activar su cuenta profesional. Le despacho el kit de 5 viales hoy mismo para entrega en 24h. Le envío el enlace de pago seguro a su móvil ahora mismo."`
+        ]
+      };
+
+      return scripts[method][phaseIdx];
+    }
+
+    function renderCard() {
+      const pInfo = PHASES_INFO[currentPhase];
+      document.getElementById('cardPhaseTag').textContent = `${pInfo.tag} • ${pInfo.name}`;
+      document.getElementById('cardGoal').textContent = `🎯 Objetivo: ${pInfo.goal}`;
+      document.getElementById('cardScript').innerHTML = generateScript(currentPhase, currentMethod);
+      
+      const tips = [
+        "Desarme de guardia: tono desapegado, sin prisa, como un profesional de igual a igual.",
+        "Escucha el 80% del tiempo. Si el doctor habla de un dolor, profundiza con '¿por qué?'.",
+        "No te saltes la confirmación: si el doctor no admite el dolor, no tiene sentido presentar la solución.",
+        "Inocula la objeción antes de que la diga. Cita los números financieros con precisión.",
+        "Elimina el 'gracias por su compra'. Lidera con autoridad: dale fechas exactas de lo que pasará."
+      ];
+      document.getElementById('cardTip').textContent = tips[currentPhase];
+
+      const f = getFinancials();
+      document.getElementById('statCosto').textContent = f.cost;
+      document.getElementById('statPrecio').textContent = f.price;
+      document.getElementById('statMargen').textContent = `+${f.marginPctStr} (${f.netMarginStr} limpios)`;
+
+      renderQuickSelect();
+      lucide.createIcons();
+    }
+
+    function setPhase(idx) {
+      currentPhase = idx;
+      renderPipeline();
+      renderCard();
+    }
+
+    function nextPhase() {
+      if (currentPhase < PHASES_INFO.length - 1) setPhase(currentPhase + 1);
+    }
+
+    function prevPhase() {
+      if (currentPhase > 0) setPhase(currentPhase - 1);
+    }
+
+    function setMethodology(m) {
+      currentMethod = m;
+      ['btnMetReverse', 'btnMetNEPQ', 'btnMetConsultive'].forEach(b => {
+        document.getElementById(b).className = "px-2.5 py-1 text-[11px] rounded-lg font-medium border border-slate-700 bg-slate-800 text-slate-400";
+      });
+      const activeBtnMap = { reverse: 'btnMetReverse', nepq: 'btnMetNEPQ', consultive: 'btnMetConsultive' };
+      document.getElementById(activeBtnMap[m]).className = "px-2.5 py-1 text-[11px] rounded-lg font-medium border border-emerald-500/40 bg-emerald-500/20 text-emerald-300";
+      renderCard();
+    }
+
+    // --- GESTIÓN DE PRODUCTOS & MARKDOWN ---
+    function renderQuickSelect() {
+      const select = document.getElementById('quickProductSelect');
+      select.innerHTML = '';
+      catalog.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        opt.selected = p.id === activeProductId;
+        select.appendChild(opt);
+      });
+    }
+
+    function switchActiveProduct(id) {
+      activeProductId = id;
+      saveCatalogState();
+      populateFormWithActiveProduct();
+      renderAll();
+    }
+
+    function saveCatalogState() {
+      localStorage.setItem('app_seller_catalog', JSON.stringify(catalog));
+      localStorage.setItem('app_seller_active_id', activeProductId);
+    }
+
+    function populateFormWithActiveProduct() {
+      const prod = getActiveProduct();
+      document.getElementById('inpProdName').value = prod.name;
+      document.getElementById('inpProdPain').value = prod.pain;
+      document.getElementById('inpProdRelief').value = prod.relief;
+      document.getElementById('inpProdCost').value = prod.cost;
+      document.getElementById('inpProdPrice').value = prod.price;
+    }
+
+    function renderCatalogListModal() {
+      const list = document.getElementById('catalogList');
+      const count = document.getElementById('catCount');
+      count.textContent = catalog.length;
+      list.innerHTML = '';
+
+      catalog.forEach(p => {
+        const isActive = p.id === activeProductId;
+        const div = document.createElement('div');
+        div.onclick = () => {
+          switchActiveProduct(p.id);
+          renderCatalogListModal();
+        };
+        div.className = `p-2 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition ${
+          isActive 
+            ? 'bg-emerald-500/15 border-emerald-500/50 text-white font-semibold' 
+            : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+        }`;
+        div.innerHTML = `
+          <div class="truncate mr-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
+            <span class="truncate">${p.name}</span>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-[10px] text-slate-400 font-mono font-normal">$${p.cost} ➔ $${p.price}</span>
+            <button onclick="deleteProductFromCatalog('${p.id}', event)" class="text-slate-500 hover:text-rose-400 p-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      lucide.createIcons();
+    }
+
     function parseMarkdownToProduct(text, fileName) {
       const lines = text.split('\n');
       let name = fileName.replace(/\.(md|markdown|txt)$/i, '').replace(/[-_]/g, ' ');
@@ -590,14 +1252,7 @@
       for (let rawLine of lines) {
         let line = rawLine.trim();
         if (!line) continue;
-
-        let clean = line
-          .replace(/^[-*•]\s+/, '')
-          .replace(/^[0-9]+\.\s+/, '')
-          .replace(/\*\*/g, '')
-          .replace(/__/g, '')
-          .replace(/^#+\s*/, '')
-          .trim();
+        let clean = line.replace(/^[-*•]\s+/, '').replace(/^[0-9]+\.\s+/, '').replace(/\*\*/g, '').replace(/__/g, '').replace(/^#+\s*/, '').trim();
 
         const nameMatch = clean.match(/^(?:producto|nombre|insumo|referencia|título|titulo)\s*[:=\-]\s*(.+)$/i);
         if (nameMatch && nameMatch[1].trim().length > 1) name = nameMatch[1].trim();
@@ -652,37 +1307,20 @@
       });
 
       const newProducts = await Promise.all(readPromises);
-
       newProducts.forEach(newP => {
         const existingIdx = catalog.findIndex(p => p.fileName === newP.fileName || p.name.toLowerCase() === newP.name.toLowerCase());
-        if (existingIdx >= 0) {
-          catalog[existingIdx] = newP;
-        } else {
-          catalog.unshift(newP);
-        }
+        if (existingIdx >= 0) catalog[existingIdx] = newP;
+        else catalog.unshift(newP);
       });
 
       activeProductId = newProducts[0].id;
-
       saveCatalogState();
       populateFormWithActiveProduct();
       renderCatalogListModal();
       renderAll();
 
       e.target.value = '';
-      alert(`✅ ¡Ficha técnica cargada!\n\nInsumo Activo: "${newProducts[0].name}"\nCosto: $${newProducts[0].cost} | Venta: $${newProducts[0].price}\n\nGuiones y objeciones adaptados.`);
-    }
-
-    function switchActiveProduct(id) {
-      activeProductId = id;
-      saveCatalogState();
-      populateFormWithActiveProduct();
-      renderAll();
-    }
-
-    function saveCatalogState() {
-      localStorage.setItem('app_seller_catalog', JSON.stringify(catalog));
-      localStorage.setItem('app_seller_active_id', activeProductId);
+      alert(`✅ ¡Ficha técnica cargada con éxito!\n\nInsumo Activo: "${newProducts[0].name}"\nCosto: $${newProducts[0].cost} | Venta: $${newProducts[0].price}`);
     }
 
     function createNewBlankProduct() {
@@ -716,250 +1354,24 @@
       renderAll();
     }
 
-    // --- MOTOR DE GUIONES DINÁMICOS ---
-    function generateScript(phaseIdx, method) {
-      const f = getFinancials();
+    function saveProduct(e) {
+      e.preventDefault();
       const prod = getActiveProduct();
-      const pName = prod.name;
-      const pPain = prod.pain;
-      const pRelief = prod.relief;
+      prod.name = document.getElementById('inpProdName').value.trim();
+      prod.pain = document.getElementById('inpProdPain').value.trim();
+      prod.relief = document.getElementById('inpProdRelief').value.trim();
+      prod.cost = parseFloat(document.getElementById('inpProdCost').value) || 0;
+      prod.price = parseFloat(document.getElementById('inpProdPrice').value) || 0;
 
-      const scripts = {
-        reverse: [
-          `"Doctor, sé que no esperaba mi llamada y probablemente está por entrar a consulta. Le robo 20 segundos exactos: le llamo porque estamos abasteciendo a clínicas de la zona con <strong>${pName}</strong> para erradicar el problema de <em>${pPain}</em>. Si esto no es un problema prioritario en su cabina hoy, dígamelo con confianza y le cuelgo ahora mismo."`,
-          `"Doctor, antes de mostrarle nada de <strong>${pName}</strong>: la mayoría de cirujanos me comentan que están frustrados por <em>${pPain}</em>. En su caso particular, ¿ha tenido algún inconveniente similar recientemente o con su proveedor habitual todo marcha al 100%?"`,
-          `"Doctor, déjeme ver si le escuché bien: usted me dice que lo que más le preocupa es <em>${pPain}</em> y que le gustaría ganar más por sesión. Si hubiera una manera comprobada de tener <strong>${pRelief}</strong> dejándole <strong>${f.netMarginStr} netos por paciente</strong>, ¿estaría dispuesto a revisar un lote inicial o preferiría dejarlo pasar?"`,
-          `"Mire, no somos la marca más barata del mercado. Cada vial le cuesta <strong>${f.cost}</strong>. Pero aquí está el alivio: le garantizamos <strong>${pRelief}</strong>. Mientras otros le cobran casi lo mismo sin certificados, usted cobra <strong>${f.price}</strong> y se queda con <strong>${f.netMarginStr} limpios en 20 minutos</strong>. ¿Tiene sentido tener una segunda opción así de rentable en cabina?"`,
-          `"Doctor, para comprobar esto en su propia clínica sin riesgo: podemos prepararle el paquete clínico de 5 viales o el pack de 10 con envío bonificado. ¿Cuál prefiere que le despachemos para que le llegue este jueves antes de mediodía?"`
-        ],
-        nepq: [
-          `"Hola Doctor, le habla [Tu Nombre] de la línea médica. Sé que está ocupado. La razón puntual de mi llamada es que estamos ayudando a especialistas que aplican <strong>${pName}</strong> y están hartos de <em>${pPain}</em>. ¿Estaría abierto a ver cómo otros colegas lo resolvieron o prefiere que no le quite tiempo?"`,
-          `"Doctor, cuando aplica tratamientos con su línea habitual... ¿qué tan seguido se topa con <em>${pPain}</em>? Y cuando eso pasa, ¿cuánto tiempo o dinero le cuesta corregirlo con el paciente?"`,
-          `"Entiendo... entonces si no resuelve el tema de <em>${pPain}</em>, seguirá perdiendo margen y arriesgando citas. Supongamos que tuviéramos un insumo con <strong>${pRelief}</strong> que le garantice <strong>${f.netMarginStr}</strong> por consulta... ¿qué impacto tendría eso en su facturación mensual?"`,
-          `"Exactamente. El alivio real de <strong>${pName}</strong> no es solo técnico con <strong>${pRelief}</strong>, sino que le da certidumbre: 5 pacientes a la semana le representan <strong>${f.weeklyFive}</strong> netos en su bolsillo. La objeción que algunos tienen al inicio es la marca, pero al ver los registros sanitarios se dan cuenta de la seguridad."`,
-          `"Doctor, basándonos en lo que me dijo, lo más prudente es que evalúe 5 unidades de prueba. Le genero su orden con factura, le llega el jueves y el viernes coordinamos el protocolo de aplicación. ¿Le parece el paso lógico a seguir?"`
-        ],
-        consultive: [
-          `"Buenas tardes Doctor. Le llamo directamente para validar si su consultorio califica para el programa de optimización de margen en <strong>${pName}</strong>. ¿Tiene un minuto para contrastar sus números actuales de rentabilidad?"`,
-          `"Doctor, haciendo números claros: actualmente, ¿cuánto le cuesta el insumo por paciente y cuánto margen neto le está quedando libre tras costos operativos? ¿Siente que <em>${pPain}</em> le está mermando su ganancia real?"`,
-          `"De acuerdo a lo que me describe, tiene una fuga de rentabilidad por <em>${pPain}</em>. Si le muestro cómo <strong>${pName}</strong> le entrega <strong>${pRelief}</strong> con un margen garantizado del <strong>${f.marginPctStr}</strong>, ¿podríamos agendar su primer despacho hoy?"`,
-          `"El análisis financiero es sencillo: costo de <strong>${f.cost}</strong>, usted cobra <strong>${f.price}</strong>, ganancia de <strong>${f.netMarginStr} por aplicación</strong>. Con 20 pacientes al mes, su clínica genera <strong>${f.monthlyTwenty} adicionales</strong> sin aumentar sus costos fijos."`,
-          `"Doctor, procedamos a activar su cuenta profesional. Le despacho el kit de 5 viales hoy mismo para entrega en 24h. Le envío el enlace de pago seguro a su móvil ahora mismo."`
-        ]
-      };
-
-      return scripts[method][phaseIdx];
-    }
-
-    // --- RENDER PIPELINE TABS ---
-    function renderPipeline() {
-      const nav = document.getElementById('pipelineNav');
-      nav.innerHTML = '';
-
-      PHASES_INFO.forEach((p, idx) => {
-        const isActive = idx === currentPhase;
-        const btn = document.createElement('button');
-        btn.onclick = () => setPhase(idx);
-        btn.className = `py-2 px-1 rounded-xl text-center transition flex flex-col items-center justify-center border text-[11px] font-semibold leading-tight ${
-          isActive 
-            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm' 
-            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-        }`;
-        btn.innerHTML = `
-          <span class="text-[9px] uppercase tracking-wider opacity-60">${p.tag}</span>
-          <span class="truncate w-full">${p.name}</span>
-        `;
-        nav.appendChild(btn);
-      });
-    }
-
-    // --- RENDER CURRENT CARD ---
-    function renderCard() {
-      const pInfo = PHASES_INFO[currentPhase];
-      document.getElementById('cardPhaseTag').textContent = `${pInfo.tag} • ${pInfo.name}`;
-      document.getElementById('cardGoal').textContent = `🎯 Objetivo: ${pInfo.goal}`;
-      document.getElementById('cardScript').innerHTML = generateScript(currentPhase, currentMethod);
-      
-      const tips = [
-        "Desarme de guardia: tono desapegado, sin prisa, como un colega de igual a igual.",
-        "Escucha el 80% del tiempo. Si el doctor habla de un dolor, profundiza con '¿por qué?'.",
-        "No te saltes la confirmación: si el doctor no admite el dolor, no tiene sentido presentar la solución.",
-        "Inocula la objeción antes de que la diga. Cita los números financieros con precisión.",
-        "Elimina el 'gracias por su compra'. Lidera con autoridad: dale fechas exactas de lo que pasará."
-      ];
-      document.getElementById('cardTip').textContent = tips[currentPhase];
-
-      const f = getFinancials();
-      document.getElementById('statCosto').textContent = f.cost;
-      document.getElementById('statPrecio').textContent = f.price;
-      document.getElementById('statMargen').textContent = `+${f.marginPctStr} (${f.netMarginStr} limpios)`;
-
-      renderQuickSelect();
-      lucide.createIcons();
-    }
-
-    function renderQuickSelect() {
-      const select = document.getElementById('quickProductSelect');
-      select.innerHTML = '';
-      catalog.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.name;
-        opt.selected = p.id === activeProductId;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderCatalogListModal() {
-      const list = document.getElementById('catalogList');
-      const count = document.getElementById('catCount');
-      count.textContent = catalog.length;
-      list.innerHTML = '';
-
-      catalog.forEach(p => {
-        const isActive = p.id === activeProductId;
-        const div = document.createElement('div');
-        div.onclick = () => {
-          switchActiveProduct(p.id);
-          renderCatalogListModal();
-        };
-        div.className = `p-2 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition ${
-          isActive 
-            ? 'bg-emerald-500/15 border-emerald-500/50 text-white font-semibold' 
-            : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
-        }`;
-        div.innerHTML = `
-          <div class="truncate mr-2 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
-            <span class="truncate">${p.name}</span>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <span class="text-[10px] text-slate-400 font-mono font-normal">$${p.cost} ➔ $${p.price}</span>
-            <button onclick="deleteProductFromCatalog('${p.id}', event)" class="text-slate-500 hover:text-rose-400 p-1">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-
-      lucide.createIcons();
-    }
-
-    // --- RENDER OBJECTION BUTTONS (10 RAÍZ) ---
-    function renderObjections() {
-      const list = document.getElementById('objectionsList');
-      list.innerHTML = '';
-
-      objections.forEach((obj, index) => {
-        const btn = document.createElement('button');
-        btn.onclick = () => triggerObjection(obj.id);
-        btn.className = "w-full text-left p-2 bg-slate-950/70 hover:bg-slate-800/90 border border-slate-800/80 hover:border-emerald-500/40 rounded-xl text-xs text-slate-300 hover:text-emerald-200 transition flex items-center justify-between group";
-        btn.innerHTML = `
-          <div class="truncate mr-1">
-            <span class="font-medium truncate block">${obj.tag}</span>
-            <span class="text-[10px] text-slate-500 block truncate group-hover:text-slate-400">${obj.type || 'Estratégica'}</span>
-          </div>
-          <i data-lucide="crosshair" class="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 transition flex-shrink-0 ml-1"></i>
-        `;
-        list.appendChild(btn);
-      });
-
-      lucide.createIcons();
-    }
-
-    // --- ACCIÓN: DISPARAR OBJECIÓN CON 3 CIERRES ---
-    function triggerObjection(id) {
-      const obj = objections.find(o => o.id === id);
-      if (!obj) return;
-
-      const f = getFinancials();
-      const prod = getActiveProduct();
-      
-      let resp = obj.response
-        .replace(/{PRODUCTO}/g, `<strong>${prod.name}</strong>`)
-        .replace(/{DOLOR_TIPICO}/g, `<em>${prod.pain}</em>`)
-        .replace(/{ALIVIO_CLAVE}/g, `<strong>${prod.relief}</strong>`)
-        .replace(/{COSTO}/g, `<strong>${f.cost}</strong>`)
-        .replace(/{PRECIO_SESION}/g, `<strong>${f.price}</strong>`)
-        .replace(/{MARGEN_NETO}/g, `<strong>${f.netMarginStr}</strong>`);
-
-      document.getElementById('objModalType').textContent = `TIPO RAÍZ: ${obj.type || 'Estratégica'}`;
-      document.getElementById('objModalTitle').textContent = obj.tag;
-      document.getElementById('objModalUserSaid').textContent = `"${obj.phrase}"`;
-      document.getElementById('objModalResponse').innerHTML = resp;
-
-      // Renderizar los 3 cierres tácticos
-      const closuresContainer = document.getElementById('objModalClosures');
-      closuresContainer.innerHTML = '';
-
-      const closuresList = obj.closures || [
-        { name: "Cierre Asuntivo", pitch: obj.closure || "¿Procedemos con la orden inicial de prueba?" }
-      ];
-
-      const colors = [
-        { badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40", border: "hover:border-emerald-500" },
-        { badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40", border: "hover:border-cyan-500" },
-        { badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40", border: "hover:border-indigo-500" }
-      ];
-
-      closuresList.forEach((c, idx) => {
-        const theme = colors[idx % colors.length];
-        const card = document.createElement('div');
-        card.className = `p-3 rounded-xl bg-slate-950 border border-slate-800 ${theme.border} transition flex flex-col justify-between`;
-        card.innerHTML = `
-          <div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider block mb-1.5 w-fit ${theme.badge}">
-              Cierre ${idx + 1}: ${c.name}
-            </span>
-            <p class="text-xs text-slate-200 leading-snug font-medium italic">
-              "${c.pitch}"
-            </p>
-          </div>
-          <button onclick="copyToClipboard('${c.pitch.replace(/'/g, "\\'")}')" class="mt-2 text-[10px] text-slate-400 hover:text-emerald-300 flex items-center gap-1 font-semibold pt-1 border-t border-slate-900">
-            <i data-lucide="copy" class="w-3 h-3"></i> Copiar frase
-          </button>
-        `;
-        closuresContainer.appendChild(card);
-      });
-
-      openModal('modalObjectionResponse');
+      saveCatalogState();
+      closeModal('modalProduct');
+      renderAll();
+      alert("✅ Cambios guardados. Todos los guiones han sido actualizados.");
     }
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert("¡Frase de cierre copiada!");
-    }
-
-    // --- ACCIONES TÁCTILES GENERALES ---
-    function setPhase(idx) {
-      currentPhase = idx;
-      renderPipeline();
-      renderCard();
-    }
-
-    function nextPhase() {
-      if (currentPhase < PHASES_INFO.length - 1) setPhase(currentPhase + 1);
-    }
-
-    function prevPhase() {
-      if (currentPhase > 0) setPhase(currentPhase - 1);
-    }
-
-    function setMethodology(m) {
-      currentMethod = m;
-      ['btnMetReverse', 'btnMetNEPQ', 'btnMetConsultive'].forEach(b => {
-        document.getElementById(b).className = "px-3 py-1 text-xs rounded-full font-medium transition border border-slate-700 bg-slate-800 text-slate-400 hover:text-white";
-      });
-
-      const activeBtnMap = {
-        reverse: 'btnMetReverse',
-        nepq: 'btnMetNEPQ',
-        consultive: 'btnMetConsultive'
-      };
-      
-      document.getElementById(activeBtnMap[m]).className = "px-3 py-1 text-xs rounded-full font-medium transition border border-emerald-500/40 bg-emerald-500/20 text-emerald-300";
-      renderCard();
+      alert("¡Frase copiada al portapapeles!");
     }
 
     function openModal(id) {
@@ -977,59 +1389,8 @@
       openModal('modalProduct');
     }
 
-    function populateFormWithActiveProduct() {
-      const prod = getActiveProduct();
-      document.getElementById('inpProdName').value = prod.name;
-      document.getElementById('inpProdPain').value = prod.pain;
-      document.getElementById('inpProdRelief').value = prod.relief;
-      document.getElementById('inpProdCost').value = prod.cost;
-      document.getElementById('inpProdPrice').value = prod.price;
-    }
-
-    function saveProduct(e) {
-      e.preventDefault();
-      const prod = getActiveProduct();
-      prod.name = document.getElementById('inpProdName').value.trim();
-      prod.pain = document.getElementById('inpProdPain').value.trim();
-      prod.relief = document.getElementById('inpProdRelief').value.trim();
-      prod.cost = parseFloat(document.getElementById('inpProdCost').value) || 0;
-      prod.price = parseFloat(document.getElementById('inpProdPrice').value) || 0;
-
-      saveCatalogState();
-      closeModal('modalProduct');
-      renderAll();
-      alert("✅ Cambios guardados. Todos los guiones han sido actualizados.");
-    }
-
     function openNewObjectionModal() {
       openModal('modalNewObjection');
-    }
-
-    function saveNewObjection(e) {
-      e.preventDefault();
-      const title = document.getElementById('inpObjTitle').value.trim();
-      const type = document.getElementById('inpObjType').value.trim();
-      const phrase = document.getElementById('inpObjPhrase').value.trim();
-      const response = document.getElementById('inpObjResponse').value.trim();
-      const closure = document.getElementById('inpObjClosure').value.trim();
-
-      const newObj = {
-        id: "obj_" + Date.now(),
-        tag: "⚡ " + title,
-        type: type,
-        phrase: phrase,
-        response: response,
-        closures: [
-          { name: "Cierre Recomendado", pitch: closure }
-        ]
-      };
-
-      objections.unshift(newObj);
-      localStorage.setItem('app_seller_objections_v2', JSON.stringify(objections));
-      
-      document.getElementById('newObjForm').reset();
-      closeModal('modalNewObjection');
-      renderObjections();
     }
 
     function openKnowledgeModal() {
@@ -1039,13 +1400,12 @@
     function applyCustomNotes() {
       const text = document.getElementById('inpCustomMethodText').value.trim();
       if (!text) return alert("Por favor escribe o pega algún texto.");
-      
       const prod = getActiveProduct();
       prod.relief += ` (Enfoque adicional: ${text.substring(0, 45)}...)`;
       saveCatalogState();
       alert("¡Principios incorporados a los guiones del insumo activo!");
       closeModal('modalKnowledge');
-      renderCard();
+      renderAll();
     }
 
     function showFinancialModal() {
@@ -1068,7 +1428,6 @@
     function importDataJSON(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(evt) {
         try {
@@ -1078,7 +1437,7 @@
             activeProductId = imported.activeProductId || catalog[0].id;
             objections = imported.objections;
             saveCatalogState();
-            localStorage.setItem('app_seller_objections_v2', JSON.stringify(objections));
+            localStorage.setItem('app_seller_objections_v3', JSON.stringify(objections));
             populateFormWithActiveProduct();
             renderAll();
             renderObjections();
@@ -1095,8 +1454,17 @@
     }
 
     function renderAll() {
-      renderPipeline();
-      renderCard();
+      if (currentMainView === 'interactions') {
+        renderInteraction();
+      } else {
+        renderPipeline();
+        renderCard();
+      }
+      renderQuickSelect();
+      const f = getFinancials();
+      document.getElementById('statCosto').textContent = f.cost;
+      document.getElementById('statPrecio').textContent = f.price;
+      document.getElementById('statMargen').textContent = `+${f.marginPctStr} (${f.netMarginStr} limpios)`;
     }
 
     window.addEventListener('DOMContentLoaded', () => {
